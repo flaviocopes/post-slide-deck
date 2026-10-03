@@ -1,0 +1,7 @@
+.DS_Store
+.build/
+dist/
+node_modules/
+.swiftpm/
+.cursor/hooks/state/
+/postdeck-showreel.mp4

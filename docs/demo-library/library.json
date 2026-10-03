@@ -1,0 +1,278 @@
+{
+  "currentDeckID": "9889544B-7E9B-54D2-8BD8-EC15DC315D2C",
+  "decks": [
+    {
+      "id": "9889544B-7E9B-54D2-8BD8-EC15DC315D2C",
+      "name": "This week's apps",
+      "createdAt": "2026-10-03T08:00:00Z",
+      "cards": [
+        {
+          "id": "2106174390564159515",
+          "url": "https://x.com/flaviocopes/status/2106174390564159515",
+          "authorName": "flavio",
+          "authorHandle": "flaviocopes",
+          "authorVerified": true,
+          "avatar": {
+            "kind": "photo",
+            "remoteURL": "https://pbs.twimg.com/profile_images/1084880084090146819/uFLTp7C1_400x400.jpg",
+            "file": "2106174390564159515-avatar.jpg"
+          },
+          "text": "Releases: my free, open source Mac app that tracks every app I ship flaviocopes.com/releases/",
+          "links": [
+            "flaviocopes.com/releases/"
+          ],
+          "postedAt": "2026-10-03T00:08:00Z",
+          "replyingTo": [],
+          "media": [
+            {
+              "kind": "video",
+              "remoteURL": "https://pbs.twimg.com/amplify_video_thumb/2105992733001211905/img/Jkshc7k5o5kefoI4?format=jpg&name=large",
+              "file": "2106174390564159515-1.jpg"
+            }
+          ],
+          "savedAt": "2026-10-03T09:00:00Z"
+        },
+        {
+          "id": "2106090916079439991",
+          "url": "https://x.com/flaviocopes/status/2106090916079439991",
+          "authorName": "flavio",
+          "authorHandle": "flaviocopes",
+          "authorVerified": true,
+          "avatar": {
+            "kind": "photo",
+            "remoteURL": "https://pbs.twimg.com/profile_images/1084880084090146819/uFLTp7C1_400x400.jpg",
+            "file": "2106090916079439991-avatar.jpg"
+          },
+          "text": "A little preview of the app I'm building to help me understand the architecture of the apps my agents build",
+          "links": [],
+          "postedAt": "2026-10-02T18:36:18Z",
+          "replyingTo": [],
+          "media": [
+            {
+              "kind": "video",
+              "remoteURL": "https://pbs.twimg.com/amplify_video_thumb/2106090751096463360/img/wEi8ZfeRZZvOcICL?format=jpg&name=large",
+              "file": "2106090916079439991-1.jpg"
+            }
+          ],
+          "savedAt": "2026-10-03T09:00:00Z"
+        },
+        {
+          "id": "2106068694325489704",
+          "url": "https://x.com/flaviocopes/status/2106068694325489704",
+          "authorName": "flavio",
+          "authorHandle": "flaviocopes",
+          "authorVerified": true,
+          "avatar": {
+            "kind": "photo",
+            "remoteURL": "https://pbs.twimg.com/profile_images/1084880084090146819/uFLTp7C1_400x400.jpg",
+            "file": "2106068694325489704-avatar.jpg"
+          },
+          "text": "NoteRepo: my new daily notes app for Mac, with a twist flaviocopes.com/noterepo/",
+          "links": [
+            "flaviocopes.com/noterepo/"
+          ],
+          "postedAt": "2026-10-02T17:08:00Z",
+          "replyingTo": [],
+          "media": [
+            {
+              "kind": "video",
+              "remoteURL": "https://pbs.twimg.com/amplify_video_thumb/2105992611546738688/img/78bHD7aRqsz2pPSU?format=jpg&name=large",
+              "file": "2106068694325489704-1.jpg"
+            }
+          ],
+          "savedAt": "2026-10-03T09:00:00Z"
+        },
+        {
+          "id": "2105958535549026599",
+          "url": "https://x.com/flaviocopes/status/2105958535549026599",
+          "authorName": "flavio",
+          "authorHandle": "flaviocopes",
+          "authorVerified": true,
+          "avatar": {
+            "kind": "photo",
+            "remoteURL": "https://pbs.twimg.com/profile_images/1084880084090146819/uFLTp7C1_400x400.jpg",
+            "file": "2105958535549026599-avatar.jpg"
+          },
+          "text": "Launched the Calculum macOS app, a free and open source app with 281 calculators\n\n▶︎ Works offline, results update as you type\n▶︎ Save calculations with ⌘S, compare two side by side\n▶︎ Run any calculator in Terminal with the calculum command\n\nflaviocopes.com/calculum-mac/",
+          "links": [
+            "flaviocopes.com/calculum-mac/"
+          ],
+          "postedAt": "2026-10-02T09:50:16Z",
+          "replyingTo": [],
+          "media": [
+            {
+              "kind": "video",
+              "remoteURL": "https://pbs.twimg.com/amplify_video_thumb/2105957157787070464/img/EUNi6lhSb1IZjeNa?format=jpg&name=large",
+              "file": "2105958535549026599-1.jpg"
+            }
+          ],
+          "savedAt": "2026-10-03T09:00:00Z"
+        },
+        {
+          "id": "2105992960680862206",
+          "url": "https://x.com/flaviocopes/status/2105992960680862206",
+          "authorName": "flavio",
+          "authorHandle": "flaviocopes",
+          "authorVerified": true,
+          "avatar": {
+            "kind": "photo",
+            "remoteURL": "https://pbs.twimg.com/profile_images/1084880084090146819/uFLTp7C1_400x400.jpg",
+            "file": "2105992960680862206-avatar.jpg"
+          },
+          "text": "I don't write code anymore. I don't even read it.",
+          "links": [],
+          "postedAt": "2026-10-02T12:07:03Z",
+          "replyingTo": [],
+          "media": [
+            {
+              "kind": "video",
+              "remoteURL": "https://pbs.twimg.com/amplify_video_thumb/2105991898770870272/img/g92dixbqsZP9zAbE?format=jpg&name=large",
+              "file": "2105992960680862206-1.jpg"
+            }
+          ],
+          "savedAt": "2026-10-03T09:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "DF5B8E00-4E89-5240-A2AF-EEC6A9B90ECC",
+      "name": "Coding with agents",
+      "createdAt": "2026-10-02T08:00:00Z",
+      "cards": [
+        {
+          "id": "2105992960680862206",
+          "url": "https://x.com/flaviocopes/status/2105992960680862206",
+          "authorName": "flavio",
+          "authorHandle": "flaviocopes",
+          "authorVerified": true,
+          "avatar": {
+            "kind": "photo",
+            "remoteURL": "https://pbs.twimg.com/profile_images/1084880084090146819/uFLTp7C1_400x400.jpg",
+            "file": "2105992960680862206-avatar.jpg"
+          },
+          "text": "I don't write code anymore. I don't even read it.",
+          "links": [],
+          "postedAt": "2026-10-02T12:07:03Z",
+          "replyingTo": [],
+          "media": [
+            {
+              "kind": "video",
+              "remoteURL": "https://pbs.twimg.com/amplify_video_thumb/2105991898770870272/img/g92dixbqsZP9zAbE?format=jpg&name=large",
+              "file": "2105992960680862206-1.jpg"
+            }
+          ],
+          "savedAt": "2026-10-03T09:00:00Z"
+        },
+        {
+          "id": "2106090916079439991",
+          "url": "https://x.com/flaviocopes/status/2106090916079439991",
+          "authorName": "flavio",
+          "authorHandle": "flaviocopes",
+          "authorVerified": true,
+          "avatar": {
+            "kind": "photo",
+            "remoteURL": "https://pbs.twimg.com/profile_images/1084880084090146819/uFLTp7C1_400x400.jpg",
+            "file": "2106090916079439991-avatar.jpg"
+          },
+          "text": "A little preview of the app I'm building to help me understand the architecture of the apps my agents build",
+          "links": [],
+          "postedAt": "2026-10-02T18:36:18Z",
+          "replyingTo": [],
+          "media": [
+            {
+              "kind": "video",
+              "remoteURL": "https://pbs.twimg.com/amplify_video_thumb/2106090751096463360/img/wEi8ZfeRZZvOcICL?format=jpg&name=large",
+              "file": "2106090916079439991-1.jpg"
+            }
+          ],
+          "savedAt": "2026-10-03T09:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "31F34D05-A62D-5DF5-88AC-6D236D967587",
+      "name": "Open source apps",
+      "createdAt": "2026-10-01T08:00:00Z",
+      "cards": [
+        {
+          "id": "2105958535549026599",
+          "url": "https://x.com/flaviocopes/status/2105958535549026599",
+          "authorName": "flavio",
+          "authorHandle": "flaviocopes",
+          "authorVerified": true,
+          "avatar": {
+            "kind": "photo",
+            "remoteURL": "https://pbs.twimg.com/profile_images/1084880084090146819/uFLTp7C1_400x400.jpg",
+            "file": "2105958535549026599-avatar.jpg"
+          },
+          "text": "Launched the Calculum macOS app, a free and open source app with 281 calculators\n\n▶︎ Works offline, results update as you type\n▶︎ Save calculations with ⌘S, compare two side by side\n▶︎ Run any calculator in Terminal with the calculum command\n\nflaviocopes.com/calculum-mac/",
+          "links": [
+            "flaviocopes.com/calculum-mac/"
+          ],
+          "postedAt": "2026-10-02T09:50:16Z",
+          "replyingTo": [],
+          "media": [
+            {
+              "kind": "video",
+              "remoteURL": "https://pbs.twimg.com/amplify_video_thumb/2105957157787070464/img/EUNi6lhSb1IZjeNa?format=jpg&name=large",
+              "file": "2105958535549026599-1.jpg"
+            }
+          ],
+          "savedAt": "2026-10-03T09:00:00Z"
+        },
+        {
+          "id": "2106068694325489704",
+          "url": "https://x.com/flaviocopes/status/2106068694325489704",
+          "authorName": "flavio",
+          "authorHandle": "flaviocopes",
+          "authorVerified": true,
+          "avatar": {
+            "kind": "photo",
+            "remoteURL": "https://pbs.twimg.com/profile_images/1084880084090146819/uFLTp7C1_400x400.jpg",
+            "file": "2106068694325489704-avatar.jpg"
+          },
+          "text": "NoteRepo: my new daily notes app for Mac, with a twist flaviocopes.com/noterepo/",
+          "links": [
+            "flaviocopes.com/noterepo/"
+          ],
+          "postedAt": "2026-10-02T17:08:00Z",
+          "replyingTo": [],
+          "media": [
+            {
+              "kind": "video",
+              "remoteURL": "https://pbs.twimg.com/amplify_video_thumb/2105992611546738688/img/78bHD7aRqsz2pPSU?format=jpg&name=large",
+              "file": "2106068694325489704-1.jpg"
+            }
+          ],
+          "savedAt": "2026-10-03T09:00:00Z"
+        },
+        {
+          "id": "2106174390564159515",
+          "url": "https://x.com/flaviocopes/status/2106174390564159515",
+          "authorName": "flavio",
+          "authorHandle": "flaviocopes",
+          "authorVerified": true,
+          "avatar": {
+            "kind": "photo",
+            "remoteURL": "https://pbs.twimg.com/profile_images/1084880084090146819/uFLTp7C1_400x400.jpg",
+            "file": "2106174390564159515-avatar.jpg"
+          },
+          "text": "Releases: my free, open source Mac app that tracks every app I ship flaviocopes.com/releases/",
+          "links": [
+            "flaviocopes.com/releases/"
+          ],
+          "postedAt": "2026-10-03T00:08:00Z",
+          "replyingTo": [],
+          "media": [
+            {
+              "kind": "video",
+              "remoteURL": "https://pbs.twimg.com/amplify_video_thumb/2105992733001211905/img/Jkshc7k5o5kefoI4?format=jpg&name=large",
+              "file": "2106174390564159515-1.jpg"
+            }
+          ],
+          "savedAt": "2026-10-03T09:00:00Z"
+        }
+      ]
+    }
+  ]
+}

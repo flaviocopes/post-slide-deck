@@ -1,0 +1,70 @@
+/* The button copies X's Reply control, so X's classes size and color it. These rules only
+   undo the browser's button look and draw the icon as lines. */
+.postdeck-button {
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.postdeck-icon {
+  min-width: 1em;
+  min-height: 1em;
+}
+
+.postdeck-icon * {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.postdeck-button:hover,
+.postdeck-button:hover *,
+.postdeck-button:focus-visible,
+.postdeck-button:focus-visible * {
+  color: #1d9bf0 !important;
+}
+
+.postdeck-button[data-state='sending'] {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+.postdeck-button[data-state='added'],
+.postdeck-button[data-state='added'] * {
+  color: #00ba7c !important;
+}
+
+#postdeck-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  z-index: 2147483647;
+  max-width: min(520px, calc(100vw - 32px));
+  padding: 12px 16px;
+  border-radius: 6px;
+  background: #1d9bf0;
+  color: #fff;
+  font:
+    15px/20px -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 16px);
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+}
+
+#postdeck-toast.postdeck-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}

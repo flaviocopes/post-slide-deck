@@ -1,0 +1,13 @@
+{
+  "name": "postdeck",
+  "productName": "Postdeck",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node Tests/extension/test.mjs",
+    "capture-fixtures": "node Tests/extension/capture-fixtures.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}
