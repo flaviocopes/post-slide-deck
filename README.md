@@ -4,6 +4,10 @@ Postdeck turns posts on X into slides you talk over while you record a video. Cl
 
 I record videos where I talk about posts on X. Recording X itself means scrolling, ads, replies and a busy timeline in the frame. Postdeck gives you a clean slideshow of just the posts you picked, in the order you want, ready to record.
 
+Watch the 30-second demo:
+
+[![Watch the 30-second Postdeck demo](docs/showreel-poster.jpg)](https://flaviocopes.com/images/postdeck/demo.mp4)
+
 ## Download
 
 Get `Postdeck-1.0.0.zip` from the [latest release](https://github.com/flaviocopes/postdeck/releases/latest) and unzip it. You get two things:

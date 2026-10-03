@@ -9,7 +9,7 @@ A Swift package with no Xcode project and no Swift dependencies, plus the extens
 - `extension/`: Manifest V3. `post.js` reads a post from the page, `content.js` adds the button and shows the toast, `background.js` posts to the app. The button is a copy of X's own Reply control with another icon, placed next to Like, so it takes X's size, alignment and hover color in every action bar. Don't give it fixed sizes.
 - `Tests/PostdeckCoreTests`: Swift Testing tests for the core. `Tests/extension`: the Playwright test, the script that captures its fixtures from x.com, and the fixtures.
 - `Scripts/`: `build-app.sh`, `build-release.sh`, `render-icon.swift`, `render-banner.swift`, and `screenshot.sh` with `screenshot.swift`.
-- `docs/`: the README's banner, screenshots and slide, and `demo-library`, the library they're made from, with the author's own public posts from @flaviocopes. Screenshots and videos use it, never a real library.
+- `docs/`: the README's banner, screenshots, slide and video poster, and `demo-library`, the library they're made from, with the author's own public posts from @flaviocopes. Screenshots and videos use it, never a real library.
 - `.github/workflows/ci.yml`: `swift test` and `build-release.sh` on macOS, and `npm test` on Linux.
 
 ## Build and test
@@ -61,4 +61,5 @@ Set `POSTDECK_HOME=/tmp/postdeck-test` to use another library folder, and `POSTD
 - The in-app updater installs a release only when the tag equals the app's version, the zip has `Postdeck.app` at the top with the same bundle ID (`com.flaviocopes.postdeck`), and its signature is valid. It takes the first `.zip` in the release, so attach only that one zip.
 - The release notes start with what's new. The update dialog shows them up to the `## Install` heading.
 - The extension doesn't update itself. When a release changes `extension/`, say so in the notes, so people replace their `Postdeck Extension` folder.
+- The 30-second demo video is on flaviocopes.com, not in the repo. `docs/showreel-poster.jpg` in the README links to it.
 - `build-release.sh` signs with the Developer ID and notarizes when the certificate and the `notary` notarytool profile are on the Mac. Everywhere else, like CI and forks, it signs ad hoc.
