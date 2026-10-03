@@ -29,15 +29,18 @@ lipo "$APP/Contents/MacOS/Postdeck" -verify_arch arm64 x86_64
 TEAM=$(codesign -dv "$APP" 2>&1 | sed -n 's/^TeamIdentifier=//p')
 if [ "$TEAM" = DGFKNTAG99 ]; then
   SIGNATURE="Developer ID"
-  ditto -c -k --keepParent "$APP" "$STAGE/notarize.zip"
-  RESULT=$(xcrun notarytool submit "$STAGE/notarize.zip" --keychain-profile notary --wait --output-format json)
-  if [ "$(printf '%s' "$RESULT" | plutil -extract status raw -o - -)" != Accepted ]; then
-    printf '%s\n' "$RESULT" >&2
-    xcrun notarytool log "$(printf '%s' "$RESULT" | plutil -extract id raw -o - -)" --keychain-profile notary >&2
-    exit 1
+  # The build is reproducible, so a rebuild Apple already notarized staples right away.
+  if ! xcrun stapler staple "$APP" >/dev/null 2>&1; then
+    ditto -c -k --keepParent "$APP" "$STAGE/notarize.zip"
+    RESULT=$(xcrun notarytool submit "$STAGE/notarize.zip" --keychain-profile notary --wait --output-format json)
+    if [ "$(printf '%s' "$RESULT" | plutil -extract status raw -o - -)" != Accepted ]; then
+      printf '%s\n' "$RESULT" >&2
+      xcrun notarytool log "$(printf '%s' "$RESULT" | plutil -extract id raw -o - -)" --keychain-profile notary >&2
+      exit 1
+    fi
+    rm "$STAGE/notarize.zip"
+    xcrun stapler staple "$APP"
   fi
-  rm "$STAGE/notarize.zip"
-  xcrun stapler staple "$APP"
   spctl --assess --type execute --verbose "$APP"
 else
   SIGNATURE="ad-hoc"
@@ -46,7 +49,8 @@ fi
 ditto "$APP" "$STAGE/Postdeck.app"
 ditto extension "$STAGE/Postdeck Extension"
 find "$STAGE" -name .DS_Store -delete
-ditto -c -k "$STAGE" "$ZIP"
+xattr -cr "$STAGE"
+ditto -c -k --norsrc --noextattr "$STAGE" "$ZIP"
 
 ditto -x -k "$ZIP" "$CHECK"
 codesign --verify --deep --strict "$CHECK/Postdeck.app"
