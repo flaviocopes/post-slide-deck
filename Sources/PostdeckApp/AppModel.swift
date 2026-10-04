@@ -6,14 +6,22 @@ import PostdeckCore
 @Observable
 final class AppModel {
   private(set) var library: Library
-  /// The selected post, which is also the slide the slideshow shows.
-  var selectedCardID: Card.ID?
+  /// The selected slide, which is also the one the slideshow shows.
+  var selectedSlideID: Slide.ID? {
+    didSet {
+      if selectedSlideID != newTextSlideID {
+        newTextSlideID = nil
+      }
+    }
+  }
   private(set) var serverState: LocalServer.State?
   var errorMessage: String?
   /// True while the slideshow plays in the main window, so new posts don't change the slide on screen.
   private(set) var isPresenting = false
   /// The slideshow whose name is being edited in the sidebar.
   var renamingDeckID: Deck.ID?
+  /// The text slide just added, so the stage puts the cursor in its title.
+  private(set) var newTextSlideID: Slide.ID?
 
   let store: LibraryStore
   @ObservationIgnored private var server: LocalServer?
@@ -28,7 +36,7 @@ final class AppModel {
       try? FileManager.default.moveItem(at: store.libraryURL, to: backup)
       errorMessage = "Postdeck couldn't read its library, so it started a new one. The old file is \(backup.lastPathComponent) in \(store.folder.path)."
     }
-    selectedCardID = library.currentDeck?.cards.first?.id
+    selectedSlideID = library.currentDeck?.slides.first?.id
     startServer()
   }
 
@@ -43,18 +51,18 @@ final class AppModel {
     set {
       guard newValue != library.currentDeckID else { return }
       library.currentDeckID = newValue
-      selectedCardID = library.currentDeck?.cards.first?.id
+      selectedSlideID = library.currentDeck?.slides.first?.id
       save()
     }
   }
 
-  var cards: [Card] {
-    currentDeck?.cards ?? []
+  var slides: [Slide] {
+    currentDeck?.slides ?? []
   }
 
   func createDeck() {
     renamingDeckID = library.createDeck()
-    selectedCardID = nil
+    selectedSlideID = nil
     save()
   }
 
@@ -65,47 +73,69 @@ final class AppModel {
 
   func deleteDeck(_ deckID: Deck.ID) {
     library.deleteDeck(deckID)
-    selectedCardID = currentDeck?.cards.first?.id
+    selectedSlideID = currentDeck?.slides.first?.id
     save()
     store.removeUnusedMedia(keeping: library.mediaFiles)
   }
 
-  // MARK: Cards
+  // MARK: Slides
 
   var selectedIndex: Int? {
-    cards.firstIndex { $0.id == selectedCardID }
+    slides.firstIndex { $0.id == selectedSlideID }
   }
 
-  var selectedCard: Card? {
-    selectedIndex.map { cards[$0] }
+  var selectedSlide: Slide? {
+    selectedIndex.map { slides[$0] }
   }
 
-  func deleteCard(_ cardID: Card.ID) {
-    guard let deckID = library.currentDeckID, let index = cards.firstIndex(where: { $0.id == cardID }) else { return }
-    library.removeCards([cardID], from: deckID)
-    if selectedCardID == cardID {
-      selectedCardID = cards.isEmpty ? nil : cards[min(index, cards.count - 1)].id
+  /// The slide after the selected one, or nil on the last slide.
+  var nextSlide: Slide? {
+    guard let index = selectedIndex, index + 1 < slides.count else { return nil }
+    return slides[index + 1]
+  }
+
+  /// Adds an empty text slide after the selected one and selects it, so the stage shows it ready to type in.
+  func addTextSlide() {
+    let deckID = library.ensureCurrentDeck()
+    let slide = TextSlide()
+    library.insert(slide, in: deckID, after: selectedSlideID)
+    selectedSlideID = slide.id
+    newTextSlideID = slide.id
+    save()
+  }
+
+  func updateTextSlide(_ slide: TextSlide) {
+    guard let deckID = library.currentDeckID, !slides.contains(.text(slide)) else { return }
+    library.update(slide, in: deckID)
+    save()
+  }
+
+  func deleteSlide(_ slideID: Slide.ID) {
+    guard let deckID = library.currentDeckID, let index = slides.firstIndex(where: { $0.id == slideID }) else { return }
+    library.removeSlides([slideID], from: deckID)
+    if selectedSlideID == slideID {
+      selectedSlideID = slides.isEmpty ? nil : slides[min(index, slides.count - 1)].id
     }
     save()
     store.removeUnusedMedia(keeping: library.mediaFiles)
   }
 
-  /// Moves a card in front of another one, or to the end when `targetID` is nil.
-  func moveCard(_ cardID: Card.ID, before targetID: Card.ID?) {
-    guard let deckID = library.currentDeckID, cardID != targetID,
-      let source = cards.firstIndex(where: { $0.id == cardID })
+  /// Moves a slide in front of another one, or to the end when `targetID` is nil.
+  func moveSlide(_ slideID: Slide.ID, before targetID: Slide.ID?) {
+    guard let deckID = library.currentDeckID, slideID != targetID,
+      let source = slides.firstIndex(where: { $0.id == slideID })
     else { return }
-    let destination = targetID.flatMap { id in cards.firstIndex { $0.id == id } } ?? cards.count
-    library.moveCards(in: deckID, fromOffsets: [source], toOffset: destination)
+    let destination = targetID.flatMap { id in slides.firstIndex { $0.id == id } } ?? slides.count
+    library.moveSlides(in: deckID, fromOffsets: [source], toOffset: destination)
     save()
   }
 
-  /// Moves a card of the current slideshow to another one. When it was selected, the card that takes its place is.
-  func moveCard(_ cardID: Card.ID, to targetID: Deck.ID) {
-    guard let deckID = library.currentDeckID, let index = cards.firstIndex(where: { $0.id == cardID }) else { return }
-    library.moveCard(cardID, from: deckID, to: targetID)
-    if selectedCardID == cardID {
-      selectedCardID = cards.isEmpty ? nil : cards[min(index, cards.count - 1)].id
+  /// Moves a slide of the current slideshow to another one. When it was selected, the slide that takes its place is.
+  func moveSlide(_ slideID: Slide.ID, to targetID: Deck.ID) {
+    guard let deckID = library.currentDeckID, let index = slides.firstIndex(where: { $0.id == slideID }) else { return }
+    library.moveSlide(slideID, from: deckID, to: targetID)
+    if selectedSlideID == slideID {
+      selectedSlideID = slides.isEmpty ? nil : slides[min(index, slides.count - 1)].id
     }
     save()
   }
@@ -114,18 +144,18 @@ final class AppModel {
 
   func showNext() { show(offset: 1) }
   func showPrevious() { show(offset: -1) }
-  func showFirst() { selectedCardID = cards.first?.id }
-  func showLast() { selectedCardID = cards.last?.id }
+  func showFirst() { selectedSlideID = slides.first?.id }
+  func showLast() { selectedSlideID = slides.last?.id }
 
   private func show(offset: Int) {
-    guard !cards.isEmpty else { return }
+    guard !slides.isEmpty else { return }
     let index = selectedIndex.map { $0 + offset } ?? 0
-    selectedCardID = cards[min(max(index, 0), cards.count - 1)].id
+    selectedSlideID = slides[min(max(index, 0), slides.count - 1)].id
   }
 
   func startPresenting() {
-    guard !cards.isEmpty else { return }
-    if selectedCard == nil {
+    guard !slides.isEmpty else { return }
+    if selectedSlide == nil {
       showFirst()
     }
     isPresenting = true
@@ -186,7 +216,7 @@ final class AppModel {
     let result = library.add(downloaded, to: deckID)
     save()
     if case .added = result, library.currentDeckID == deckID, !isPresenting {
-      selectedCardID = downloaded.id
+      selectedSlideID = downloaded.id
     }
     return result
   }

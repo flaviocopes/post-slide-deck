@@ -18,9 +18,9 @@ extension Library {
     decks.firstIndex { $0.id == deckID }
   }
 
-  public func contains(_ cardID: String, in deckID: UUID) -> Bool {
+  public func contains(_ slideID: Slide.ID, in deckID: UUID) -> Bool {
     guard let index = index(of: deckID) else { return false }
-    return decks[index].cards.contains { $0.id == cardID }
+    return decks[index].slides.contains { $0.id == slideID }
   }
 
   /// The deck new posts go to. Picks the newest deck when none is selected, and creates one when there are none.
@@ -60,17 +60,35 @@ extension Library {
       let id = createDeck()
       return add(card, to: id)
     }
-    if let existing = decks[index].cards.firstIndex(where: { $0.id == card.id }) {
-      let deck = decks[index]
-      guard card.text.count > deck.cards[existing].text.count else {
-        return .alreadyThere(deck: deck.name, count: deck.cards.count)
+    let deck = decks[index]
+    if let existing = deck.slides.firstIndex(where: { $0.id == card.id }) {
+      guard case .post(var post) = deck.slides[existing], card.text.count > post.text.count else {
+        return .alreadyThere(deck: deck.name, count: deck.slides.count)
       }
-      decks[index].cards[existing].text = card.text
-      decks[index].cards[existing].links = card.links
-      return .updated(deck: deck.name, count: deck.cards.count)
+      post.text = card.text
+      post.links = card.links
+      decks[index].slides[existing] = .post(post)
+      return .updated(deck: deck.name, count: deck.slides.count)
     }
-    decks[index].cards.append(card)
-    return .added(deck: decks[index].name, count: decks[index].cards.count)
+    decks[index].slides.append(.post(card))
+    return .added(deck: deck.name, count: decks[index].slides.count)
+  }
+
+  /// Adds a text slide after `slideID`, or at the end when that's nil or not in the deck.
+  public mutating func insert(_ text: TextSlide, in deckID: UUID, after slideID: Slide.ID?) {
+    guard let index = index(of: deckID) else { return }
+    let slides = decks[index].slides
+    let position = slideID.flatMap { id in slides.firstIndex { $0.id == id } }.map { $0 + 1 } ?? slides.endIndex
+    decks[index].slides.insert(.text(text), at: position)
+  }
+
+  /// Replaces the text slide that has the same ID.
+  public mutating func update(_ text: TextSlide, in deckID: UUID) {
+    guard let index = index(of: deckID),
+      let position = decks[index].slides.firstIndex(where: { $0.id == text.id }),
+      case .text = decks[index].slides[position]
+    else { return }
+    decks[index].slides[position] = .text(text)
   }
 
   public mutating func renameDeck(_ deckID: UUID, to name: String) {
@@ -88,41 +106,41 @@ extension Library {
     }
   }
 
-  public mutating func removeCards(_ cardIDs: Set<String>, from deckID: UUID) {
+  public mutating func removeSlides(_ slideIDs: Set<Slide.ID>, from deckID: UUID) {
     guard let index = index(of: deckID) else { return }
-    decks[index].cards.removeAll { cardIDs.contains($0.id) }
+    decks[index].slides.removeAll { slideIDs.contains($0.id) }
   }
 
-  /// Reorders cards the way `List.onMove` describes it: the offsets before the move, and the destination before removing them.
-  public mutating func moveCards(in deckID: UUID, fromOffsets offsets: IndexSet, toOffset destination: Int) {
+  /// Reorders slides the way `List.onMove` describes it: the offsets before the move, and the destination before removing them.
+  public mutating func moveSlides(in deckID: UUID, fromOffsets offsets: IndexSet, toOffset destination: Int) {
     guard let index = index(of: deckID) else { return }
-    var cards = decks[index].cards
-    let moving = offsets.map { cards[$0] }
+    var slides = decks[index].slides
+    let moving = offsets.map { slides[$0] }
     let removedBefore = offsets.count { $0 < destination }
     for offset in offsets.reversed() {
-      cards.remove(at: offset)
+      slides.remove(at: offset)
     }
-    cards.insert(contentsOf: moving, at: destination - removedBefore)
-    decks[index].cards = cards
+    slides.insert(contentsOf: moving, at: destination - removedBefore)
+    decks[index].slides = slides
   }
 
-  /// Moves a card to the end of another deck. When the other deck has the post already, the card is only removed.
-  public mutating func moveCard(_ cardID: String, from sourceID: UUID, to targetID: UUID) {
+  /// Moves a slide to the end of another deck. When the other deck has the post already, the slide is only removed.
+  public mutating func moveSlide(_ slideID: Slide.ID, from sourceID: UUID, to targetID: UUID) {
     guard sourceID != targetID,
       let source = index(of: sourceID),
       let target = index(of: targetID),
-      let card = decks[source].cards.first(where: { $0.id == cardID })
+      let slide = decks[source].slides.first(where: { $0.id == slideID })
     else { return }
-    decks[source].cards.removeAll { $0.id == cardID }
-    if !decks[target].cards.contains(where: { $0.id == cardID }) {
-      decks[target].cards.append(card)
+    decks[source].slides.removeAll { $0.id == slideID }
+    if !decks[target].slides.contains(where: { $0.id == slideID }) {
+      decks[target].slides.append(slide)
     }
   }
 
-  /// Every media file a card points to, so the rest can be deleted.
+  /// Every media file a post points to, so the rest can be deleted.
   public var mediaFiles: Set<String> {
     var files = Set<String>()
-    for card in decks.flatMap(\.cards) {
+    for card in decks.flatMap(\.slides).compactMap(\.post) {
       if let file = card.avatar?.file {
         files.insert(file)
       }

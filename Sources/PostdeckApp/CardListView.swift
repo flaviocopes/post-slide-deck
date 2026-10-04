@@ -12,27 +12,41 @@ struct Navigator: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      VStack(alignment: .leading, spacing: 1) {
-        Text(model.currentDeck?.name ?? "Postdeck")
-          .font(Typography.title)
-          .lineLimit(1)
-        Text(subtitle)
-          .font(Typography.caption)
-          .foregroundStyle(.secondary)
+      HStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 1) {
+          Text(model.currentDeck?.name ?? "Postdeck")
+            .font(Typography.title)
+            .lineLimit(1)
+          Text(subtitle)
+            .font(Typography.caption)
+            .foregroundStyle(.secondary)
+        }
+        Spacer(minLength: 0)
+        Button {
+          model.addTextSlide()
+        } label: {
+          Image(systemName: "text.badge.plus")
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundStyle(.secondary)
+            .frame(width: 28, height: 28)
+        }
+        .buttonStyle(HoverButtonStyle())
+        .help("New Text Slide (⌘T)")
       }
-      .padding(.horizontal, 16)
+      .padding(.leading, 16)
+      .padding(.trailing, 12)
       .frame(maxWidth: .infinity, minHeight: Metrics.topBar, alignment: .leading)
 
       if let deck = model.currentDeck {
-        if deck.cards.isEmpty {
+        if deck.slides.isEmpty {
           EmptyState(
             symbol: "plus.rectangle.on.rectangle",
-            title: "No posts yet",
-            message: "Click the slide icon under any post on X, and it lands here, in “\(deck.name)”."
+            title: "No slides yet",
+            message: "Click the slide icon under any post on X, and it lands here, in “\(deck.name)”. Press ⌘T for a slide with your own text."
           )
           .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
-          slides(deck.cards)
+          slides(deck.slides)
         }
       } else {
         EmptyState(
@@ -46,37 +60,37 @@ struct Navigator: View {
   }
 
   private var subtitle: String {
-    let count = model.cards.count
-    return count == 1 ? "1 post" : "\(count) posts"
+    let count = model.slides.count
+    return count == 1 ? "1 slide" : "\(count) slides"
   }
 
-  private func slides(_ cards: [Card]) -> some View {
+  private func slides(_ slides: [Slide]) -> some View {
     ScrollView {
       VStack(spacing: 4) {
-        ForEach(Array(cards.enumerated()), id: \.element.id) { index, card in
-          ThumbnailRow(card: card, number: index + 1, isSelected: card.id == model.selectedCardID, theme: theme)
-            .overlay(alignment: .top) { dropIndicator(dropTarget == card.id) }
+        ForEach(Array(slides.enumerated()), id: \.element.id) { index, slide in
+          ThumbnailRow(slide: slide, number: index + 1, isSelected: slide.id == model.selectedSlideID, theme: theme)
+            .overlay(alignment: .top) { dropIndicator(dropTarget == slide.id) }
             .onTapGesture {
-              model.selectedCardID = card.id
+              model.selectedSlideID = slide.id
               focused = true
             }
-            .draggable(card.id) {
-              SlideView(card: card, theme: theme, store: model.store, width: 160)
+            .draggable(slide.id) {
+              SlideView(slide: slide, theme: theme, store: model.store, width: 160)
                 .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
             }
             .dropDestination(for: String.self) { ids, _ in
               guard let id = ids.first else { return false }
-              model.moveCard(id, before: card.id)
+              model.moveSlide(id, before: slide.id)
               return true
-            } isTargeted: { dropTarget = $0 ? card.id : (dropTarget == card.id ? nil : dropTarget) }
-            .contextMenu { menu(for: card) }
+            } isTargeted: { dropTarget = $0 ? slide.id : (dropTarget == slide.id ? nil : dropTarget) }
+            .contextMenu { menu(for: slide) }
         }
         Color.clear
           .frame(height: 40)
           .overlay(alignment: .top) { dropIndicator(dropTarget == Self.endOfList) }
           .dropDestination(for: String.self) { ids, _ in
             guard let id = ids.first else { return false }
-            model.moveCard(id, before: nil)
+            model.moveSlide(id, before: nil)
             return true
           } isTargeted: { dropTarget = $0 ? Self.endOfList : (dropTarget == Self.endOfList ? nil : dropTarget) }
       }
@@ -95,8 +109,8 @@ struct Navigator: View {
       return .handled
     }
     .onKeyPress(keys: [.delete, .deleteForward]) { _ in
-      if let id = model.selectedCardID {
-        model.deleteCard(id)
+      if let id = model.selectedSlideID {
+        model.deleteSlide(id)
       }
       return .handled
     }
@@ -111,30 +125,32 @@ struct Navigator: View {
       .opacity(visible ? 1 : 0)
   }
 
-  @ViewBuilder private func menu(for card: Card) -> some View {
-    Button("Open on X") {
-      NSWorkspace.shared.open(card.url)
+  @ViewBuilder private func menu(for slide: Slide) -> some View {
+    if let card = slide.post {
+      Button("Open on X") {
+        NSWorkspace.shared.open(card.url)
+      }
     }
     let otherDecks = model.library.decks.filter { $0.id != model.currentDeckID }
     if !otherDecks.isEmpty {
       Menu("Move To") {
         ForEach(otherDecks) { deck in
           Button(deck.name) {
-            model.moveCard(card.id, to: deck.id)
+            model.moveSlide(slide.id, to: deck.id)
           }
         }
       }
     }
     Divider()
     Button("Delete", role: .destructive) {
-      model.deleteCard(card.id)
+      model.deleteSlide(slide.id)
     }
   }
 }
 
 struct ThumbnailRow: View {
   @Environment(AppModel.self) private var model
-  let card: Card
+  let slide: Slide
   let number: Int
   let isSelected: Bool
   let theme: SlideTheme
@@ -152,7 +168,7 @@ struct ThumbnailRow: View {
         .frame(width: 20, alignment: .trailing)
         .padding(.top, 6)
       VStack(alignment: .leading, spacing: 6) {
-        SlideView(card: card, theme: theme, store: model.store, width: Self.slideWidth)
+        SlideView(slide: slide, theme: theme, store: model.store, width: Self.slideWidth)
           .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
           .padding(3)
           .overlay {
@@ -160,16 +176,22 @@ struct ThumbnailRow: View {
               .strokeBorder(ringColor, lineWidth: isSelected ? 2.5 : 1)
           }
         HStack(spacing: 4) {
-          Text(card.authorName)
-            .font(Typography.captionStrong)
-          Text("@\(card.authorHandle)")
-            .font(Typography.caption)
-            .foregroundStyle(.secondary)
-          if !card.replyingTo.isEmpty {
-            Image(systemName: "arrowshape.turn.up.left.fill")
-              .font(.system(size: 9))
-              .foregroundStyle(.tertiary)
-              .help("A reply to @\(card.replyingTo.joined(separator: ", @"))")
+          switch slide {
+          case .post(let card):
+            Text(card.authorName)
+              .font(Typography.captionStrong)
+            Text("@\(card.authorHandle)")
+              .font(Typography.caption)
+              .foregroundStyle(.secondary)
+            if !card.replyingTo.isEmpty {
+              Image(systemName: "arrowshape.turn.up.left.fill")
+                .font(.system(size: 9))
+                .foregroundStyle(.tertiary)
+                .help("A reply to @\(card.replyingTo.joined(separator: ", @"))")
+            }
+          case .text:
+            Text("Text slide")
+              .font(Typography.captionStrong)
           }
         }
         .lineLimit(1)

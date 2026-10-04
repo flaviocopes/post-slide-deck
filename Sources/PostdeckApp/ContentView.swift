@@ -85,8 +85,8 @@ struct Sidebar: View {
         }
       }
     } message: {
-      let count = deleting?.cards.count ?? 0
-      Text(count == 1 ? "Its post is deleted too." : "Its \(count) posts are deleted too.")
+      let count = deleting?.slides.count ?? 0
+      Text(count == 1 ? "Its slide is deleted too." : "Its \(count) slides are deleted too.")
     }
   }
 }
@@ -134,10 +134,10 @@ struct DeckRow: View {
           .lineLimit(1)
       }
       Spacer(minLength: 4)
-      Text("\(deck.cards.count)")
+      Text("\(deck.slides.count)")
         .font(Typography.captionStrong)
         .monospacedDigit()
-        .contentTransition(.numericText(value: Double(deck.cards.count)))
+        .contentTransition(.numericText(value: Double(deck.slides.count)))
         .padding(.horizontal, 7)
         .padding(.vertical, 2)
         .background(isSelected ? Color.white.opacity(0.2) : Surface.hover, in: Capsule())
@@ -156,13 +156,13 @@ struct DeckRow: View {
           .strokeBorder(Brand.blue, lineWidth: 2)
       }
     }
-    .animation(.snappy(duration: 0.2), value: deck.cards.count)
+    .animation(.snappy(duration: 0.2), value: deck.slides.count)
     .animation(.easeOut(duration: 0.12), value: isDropTarget)
     .contentShape(Rectangle())
     .onHover { hovering = $0 }
     .dropDestination(for: String.self) { ids, _ in
-      guard !isSelected, let id = ids.first, model.cards.contains(where: { $0.id == id }) else { return false }
-      model.moveCard(id, to: deck.id)
+      guard !isSelected, let id = ids.first, model.slides.contains(where: { $0.id == id }) else { return false }
+      model.moveSlide(id, to: deck.id)
       return true
     } isTargeted: { isDropTarget = $0 && !isSelected }
     .onTapGesture { model.currentDeckID = deck.id }

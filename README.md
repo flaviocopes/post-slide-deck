@@ -52,11 +52,14 @@ Every post goes to the slideshow selected in the app. Create one with ⌘N, and 
 
 Then build the slideshow:
 
+- Press ⌘T, or click the text button above the slides, to add a slide with your own text after the selected one. It has a title and, if you want, smaller text below it, like an intro before the first post. Type on the slide in the preview to change it.
 - Drag the slides to reorder them, or drop one on another slideshow in the sidebar to move it there.
 - Click a slide and press Delete to remove it. Right-click it to open the post on X or move it to another slideshow.
 - The sun and moon switch next to Play changes the slides between light and dark.
 
 When you're ready, press ⌘↩ or click **Play**. The window shows only the slide, with no buttons around it, so you can record it with your screen recorder. → and ← change the slide, and so do Space, Page Up and Page Down, so presentation clickers work too. Press S, Esc or ⌘↩ to go back to your slides.
+
+While it plays, a small window shows you the next slide. It's a separate window, so it stays out of a recording of the main window. Drag it wherever you like, even to another display, and Postdeck puts it there next time.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/slide-dark.png" />

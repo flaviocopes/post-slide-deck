@@ -43,56 +43,178 @@ enum SlideTheme: String, CaseIterable, Identifiable {
     }
   }
 
+  /// So the text fields of a text slide get a cursor and placeholders that show on its background.
+  var colorScheme: ColorScheme {
+    switch self {
+    case .light: .light
+    case .dark: .dark
+    }
+  }
+
   static let blue = Color(hex: 0x1D9BF0)
 }
 
-/// One post as a slide. Laid out on a 1920×1080 canvas, then every size is multiplied by `width / 1920`.
+/// One slide. Laid out on a 1920×1080 canvas, then every size is multiplied by `width / 1920`.
 struct SlideView: View {
   static let canvas = CGSize(width: 1920, height: 1080)
 
-  let card: Card
+  let slide: Slide
   let theme: SlideTheme
   let store: LibraryStore
   let width: CGFloat
-
-  private var unit: CGFloat { width / Self.canvas.width }
-  private func scaled(_ value: CGFloat) -> CGFloat { value * unit }
+  /// Set in the stage, where you type on a text slide.
+  var editText: (@MainActor (TextSlide) -> Void)?
+  /// Puts the cursor in the title of a text slide, when it's new.
+  var focusesTitle = false
 
   var body: some View {
+    let unit = width / Self.canvas.width
     ZStack {
       theme.background
-      VStack(alignment: .leading, spacing: scaled(36)) {
-        header
-        if !card.replyingTo.isEmpty {
-          replyLine
-        }
-        if !card.text.isEmpty {
-          Text(attributedText)
-            .font(.system(size: scaled(fontSize)))
-            .lineSpacing(scaled(fontSize * 0.22))
-            .foregroundStyle(theme.text)
-            .minimumScaleFactor(0.4)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .layoutPriority(1)
-        }
-        if !card.media.isEmpty {
-          mediaGrid
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        }
-        if let postedAt = card.postedAt {
-          Text(Self.dateText(postedAt))
-            .font(.system(size: scaled(30)))
-            .foregroundStyle(theme.secondary)
-        }
+      switch slide {
+      case .post(let card):
+        PostSlide(card: card, theme: theme, store: store, unit: unit)
+      case .text(let text):
+        TextSlideContent(slide: text, theme: theme, unit: unit, edit: editText, focusesTitle: focusesTitle)
       }
-      .padding(scaled(72))
-      .frame(width: scaled(1400))
-      .background(theme.card, in: RoundedRectangle(cornerRadius: scaled(44), style: .continuous))
-      .shadow(color: .black.opacity(theme == .light ? 0.12 : 0.4), radius: scaled(40), y: scaled(20))
-      .frame(maxHeight: scaled(940))
     }
     .frame(width: width, height: width * Self.canvas.height / Self.canvas.width)
     .clipped()
+  }
+}
+
+/// A text slide: the title, and the smaller text below it, in the middle of the slide.
+/// With `edit` set, the two lines are text fields.
+private struct TextSlideContent: View {
+  let slide: TextSlide
+  let theme: SlideTheme
+  let unit: CGFloat
+  let edit: (@MainActor (TextSlide) -> Void)?
+  let focusesTitle: Bool
+  @FocusState private var focus: Field?
+
+  private enum Field {
+    case title, subtitle
+  }
+
+  var body: some View {
+    VStack(spacing: 40 * unit) {
+      if let edit {
+        TextField("Title", text: Binding(get: { slide.title }, set: { edit(with(title: $0)) }), axis: .vertical)
+          .modifier(TitleStyle(size: titleSize * unit, theme: theme))
+          .focused($focus, equals: .title)
+          .onSubmit { focus = .subtitle }
+        TextField("Smaller text below", text: Binding(get: { slide.subtitle }, set: { edit(with(subtitle: $0)) }), axis: .vertical)
+          .modifier(SubtitleStyle(size: subtitleSize * unit, theme: theme))
+          .focused($focus, equals: .subtitle)
+      } else {
+        if !slide.title.isEmpty {
+          Text(slide.title)
+            .modifier(TitleStyle(size: titleSize * unit, theme: theme))
+        }
+        if !slide.subtitle.isEmpty {
+          Text(slide.subtitle)
+            .modifier(SubtitleStyle(size: subtitleSize * unit, theme: theme))
+        }
+      }
+    }
+    .textFieldStyle(.plain)
+    .multilineTextAlignment(.center)
+    .minimumScaleFactor(0.4)
+    .frame(maxWidth: 1560 * unit)
+    .padding(.vertical, 100 * unit)
+    .environment(\.colorScheme, theme.colorScheme)
+    .task {
+      if focusesTitle {
+        focus = .title
+      }
+    }
+  }
+
+  private func with(title: String? = nil, subtitle: String? = nil) -> TextSlide {
+    var slide = slide
+    slide.title = title ?? slide.title
+    slide.subtitle = subtitle ?? slide.subtitle
+    return slide
+  }
+
+  /// Shorter text gets bigger, like posts.
+  private var titleSize: CGFloat {
+    let length = slide.title.count + slide.title.filter { $0 == "\n" }.count * 20
+    let steps: [(Int, CGFloat)] = [(14, 150), (28, 128), (56, 108), (110, 90), (220, 76)]
+    return steps.first { length <= $0.0 }?.1 ?? 64
+  }
+
+  private var subtitleSize: CGFloat {
+    let length = slide.subtitle.count + slide.subtitle.filter { $0 == "\n" }.count * 30
+    let steps: [(Int, CGFloat)] = [(50, 60), (120, 54), (260, 46)]
+    return steps.first { length <= $0.0 }?.1 ?? 40
+  }
+
+  private struct TitleStyle: ViewModifier {
+    let size: CGFloat
+    let theme: SlideTheme
+
+    func body(content: Content) -> some View {
+      content
+        .font(.system(size: size, weight: .bold))
+        .lineSpacing(size * 0.08)
+        .foregroundStyle(theme.text)
+    }
+  }
+
+  private struct SubtitleStyle: ViewModifier {
+    let size: CGFloat
+    let theme: SlideTheme
+
+    func body(content: Content) -> some View {
+      content
+        .font(.system(size: size))
+        .lineSpacing(size * 0.2)
+        .foregroundStyle(theme.secondary)
+    }
+  }
+}
+
+/// A post, on a card like X shows it.
+private struct PostSlide: View {
+  let card: Card
+  let theme: SlideTheme
+  let store: LibraryStore
+  let unit: CGFloat
+
+  private func scaled(_ value: CGFloat) -> CGFloat { value * unit }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: scaled(36)) {
+      header
+      if !card.replyingTo.isEmpty {
+        replyLine
+      }
+      if !card.text.isEmpty {
+        Text(attributedText)
+          .font(.system(size: scaled(fontSize)))
+          .lineSpacing(scaled(fontSize * 0.22))
+          .foregroundStyle(theme.text)
+          .minimumScaleFactor(0.4)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .layoutPriority(1)
+      }
+      if !card.media.isEmpty {
+        mediaGrid
+          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+      }
+      if let postedAt = card.postedAt {
+        Text(Self.dateText(postedAt))
+          .font(.system(size: scaled(30)))
+          .foregroundStyle(theme.secondary)
+      }
+    }
+    .padding(scaled(72))
+    .frame(width: scaled(1400))
+    .background(theme.card, in: RoundedRectangle(cornerRadius: scaled(44), style: .continuous))
+    .shadow(color: .black.opacity(theme == .light ? 0.12 : 0.4), radius: scaled(40), y: scaled(20))
+    .frame(maxHeight: scaled(940))
   }
 
   private var header: some View {

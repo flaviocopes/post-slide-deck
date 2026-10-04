@@ -37,7 +37,7 @@ struct LibraryTests {
     library.add(makeCard("1", text: "I don't write code anymore. I don't…"), to: deckID)
     let full = makeCard("1", text: "I don't write code anymore. I don't even read it.")
     #expect(library.add(full, to: deckID) == .updated(deck: "Untitled Slideshow", count: 1))
-    #expect(library.decks[0].cards[0].text == full.text)
+    #expect(library.decks[0].slides[0].post?.text == full.text)
     #expect(library.add(makeCard("1", text: "Short"), to: deckID) == .alreadyThere(deck: "Untitled Slideshow", count: 1))
   }
 
@@ -59,16 +59,16 @@ struct LibraryTests {
     #expect(library.ensureCurrentDeck() == newest)
   }
 
-  @Test func reordersCardsLikeAList() {
+  @Test func reordersSlidesLikeAList() {
     var library = Library()
     let deckID = library.createDeck()
     for id in ["1", "2", "3", "4"] {
       library.add(makeCard(id), to: deckID)
     }
-    library.moveCards(in: deckID, fromOffsets: [0], toOffset: 3)
-    #expect(library.decks[0].cards.map(\.id) == ["2", "3", "1", "4"])
-    library.moveCards(in: deckID, fromOffsets: [2, 3], toOffset: 0)
-    #expect(library.decks[0].cards.map(\.id) == ["1", "4", "2", "3"])
+    library.moveSlides(in: deckID, fromOffsets: [0], toOffset: 3)
+    #expect(library.decks[0].slides.map(\.id) == ["2", "3", "1", "4"])
+    library.moveSlides(in: deckID, fromOffsets: [2, 3], toOffset: 0)
+    #expect(library.decks[0].slides.map(\.id) == ["1", "4", "2", "3"])
   }
 
   @Test func deletingTheCurrentDeckSelectsTheNextOne() {
@@ -85,17 +85,58 @@ struct LibraryTests {
     #expect(library.currentDeckID == nil)
   }
 
-  @Test func movesACardToAnotherDeck() {
+  @Test func movesASlideToAnotherDeck() {
     var library = Library()
     let source = library.createDeck(named: "Source")
     let target = library.createDeck(named: "Target")
     library.add(makeCard("1"), to: source)
     library.add(makeCard("2"), to: source)
     library.add(makeCard("2"), to: target)
-    library.moveCard("1", from: source, to: target)
-    library.moveCard("2", from: source, to: target)
-    #expect(library.decks[0].cards.isEmpty)
-    #expect(library.decks[1].cards.map(\.id) == ["2", "1"])
+    library.moveSlide("1", from: source, to: target)
+    library.moveSlide("2", from: source, to: target)
+    #expect(library.decks[0].slides.isEmpty)
+    #expect(library.decks[1].slides.map(\.id) == ["2", "1"])
+  }
+
+  @Test func insertsATextSlideAfterTheSelectedOne() {
+    var library = Library()
+    let deckID = library.createDeck()
+    for id in ["1", "2"] {
+      library.add(makeCard(id), to: deckID)
+    }
+    let intro = TextSlide(title: "This week's apps")
+    library.insert(intro, in: deckID, after: nil)
+    library.insert(TextSlide(id: "first"), in: deckID, after: "1")
+    #expect(library.decks[0].slides.map(\.id) == ["1", "first", "2", intro.id])
+    #expect(library.add(makeCard("3"), to: deckID) == .added(deck: "Untitled Slideshow", count: 5))
+  }
+
+  @Test func editsATextSlide() {
+    var library = Library()
+    let deckID = library.createDeck()
+    var text = TextSlide(title: "Releases")
+    library.insert(text, in: deckID, after: nil)
+    text.subtitle = "The app that tracks every app I ship"
+    library.update(text, in: deckID)
+    #expect(library.decks[0].slides == [.text(text)])
+  }
+
+  @Test func readsALibraryFromBeforeTextSlides() throws {
+    let json = """
+      {"currentDeckID": "9889544B-7E9B-54D2-8BD8-EC15DC315D2C", "decks": [{
+        "id": "9889544B-7E9B-54D2-8BD8-EC15DC315D2C", "name": "This week's apps", "createdAt": "2026-10-03T08:00:00Z",
+        "cards": [{
+          "id": "2106174390564159515", "url": "https://x.com/flaviocopes/status/2106174390564159515",
+          "authorName": "flavio", "authorHandle": "flaviocopes", "authorVerified": true,
+          "text": "Releases: my free, open source Mac app", "links": [], "replyingTo": [], "media": [],
+          "savedAt": "2026-10-03T09:00:00Z"
+        }]
+      }]}
+      """
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .iso8601
+    let library = try decoder.decode(Library.self, from: Data(json.utf8))
+    #expect(library.decks[0].slides.map(\.post?.authorHandle) == ["flaviocopes"])
   }
 
   @Test func listsTheMediaFilesInUse() {
@@ -108,6 +149,7 @@ struct LibraryTests {
       Media(kind: .photo, remoteURL: URL(string: "https://pbs.twimg.com/media/B")!)
     ]
     library.add(card, to: deckID)
+    library.insert(TextSlide(title: "Releases"), in: deckID, after: nil)
     #expect(library.mediaFiles == ["1-avatar.jpg", "1-1.jpg"])
   }
 
@@ -124,8 +166,10 @@ struct LibraryTests {
     card.postedAt = Date(timeIntervalSince1970: 1_759_457_280)
     card.savedAt = Date(timeIntervalSince1970: 1_759_460_000)
     library.add(card, to: deckID)
+    library.insert(TextSlide(title: "Releases", subtitle: "The app that tracks every app I ship"), in: deckID, after: nil)
     try store.save(library)
     #expect(try store.load() == library)
+    #expect(try String(contentsOf: store.libraryURL, encoding: .utf8).contains(#""kind" : "text""#))
 
     try FileManager.default.createDirectory(at: store.mediaFolder, withIntermediateDirectories: true)
     try Data("a".utf8).write(to: store.mediaURL("1-1.jpg"))

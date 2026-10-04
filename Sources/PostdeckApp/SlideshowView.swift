@@ -13,20 +13,24 @@ struct Stage: View {
       DotGrid()
       VStack(spacing: 0) {
         topBar
-        if let card = model.selectedCard {
+        if let slide = model.selectedSlide {
           GeometryReader { proxy in
             let width = min(proxy.size.width, proxy.size.height * 16 / 9)
-            SlideView(card: card, theme: theme, store: model.store, width: width)
-              .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-              .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Surface.hairline))
-              .shadow(color: .black.opacity(0.12), radius: 24, y: 10)
-              .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+            SlideView(
+              slide: slide, theme: theme, store: model.store, width: width,
+              editText: model.updateTextSlide, focusesTitle: slide.id == model.newTextSlideID
+            )
+            .id(slide.id)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Surface.hairline))
+            .shadow(color: .black.opacity(0.12), radius: 24, y: 10)
+            .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
           }
           .padding(.horizontal, 40)
           .padding(.vertical, 16)
           controls
             .padding(.bottom, 10)
-          Text("While playing, → ← or a clicker change the slide, and S brings you back here")
+          Text(slide.post == nil ? "Type on the slide to change its text" : "While playing, → ← or a clicker change the slide, and S brings you back here")
             .font(Typography.caption)
             .foregroundStyle(.tertiary)
             .padding(.bottom, 16)
@@ -34,8 +38,8 @@ struct Stage: View {
           Spacer()
           EmptyState(
             symbol: "play.rectangle.fill",
-            title: model.cards.isEmpty ? "Your slides show up here" : "Pick a slide",
-            message: model.cards.isEmpty
+            title: model.slides.isEmpty ? "Your slides show up here" : "Pick a slide",
+            message: model.slides.isEmpty
               ? "Each post you send from X becomes a slide you can talk over."
               : "Click a slide on the left to see it here."
           )
@@ -47,7 +51,7 @@ struct Stage: View {
 
   private var topBar: some View {
     HStack(spacing: 10) {
-      if let card = model.selectedCard {
+      if let card = model.selectedSlide?.post {
         Button {
           NSWorkspace.shared.open(card.url)
         } label: {
@@ -67,7 +71,7 @@ struct Stage: View {
         Label("Play", systemImage: "play.fill")
       }
       .buttonStyle(PlayButtonStyle())
-      .disabled(model.cards.isEmpty)
+      .disabled(model.slides.isEmpty)
       .help("Show only the slide in this window (⌘↩)")
     }
     .padding(.horizontal, 16)
@@ -84,7 +88,7 @@ struct Stage: View {
           .frame(width: 32, height: 28)
       }
       .disabled(model.selectedIndex == 0)
-      Text("\((model.selectedIndex ?? 0) + 1) / \(model.cards.count)")
+      Text("\((model.selectedIndex ?? 0) + 1) / \(model.slides.count)")
         .font(Typography.captionStrong)
         .monospacedDigit()
         .frame(minWidth: 44)
@@ -95,7 +99,7 @@ struct Stage: View {
           .font(.system(size: 12, weight: .semibold))
           .frame(width: 32, height: 28)
       }
-      .disabled(model.selectedIndex == model.cards.count - 1)
+      .disabled(model.selectedIndex == model.slides.count - 1)
     }
     .buttonStyle(HoverButtonStyle(cornerRadius: 14))
     .padding(4)
@@ -106,6 +110,7 @@ struct Stage: View {
 }
 
 /// What you record in Borumi: the main window with only the slide in it, and no window buttons.
+/// The next slide shows in a window of its own, so it stays out of the recording.
 struct SlideshowView: View {
   @Environment(AppModel.self) private var model
   @AppStorage("slideTheme") private var theme = SlideTheme.light
@@ -116,15 +121,15 @@ struct SlideshowView: View {
       let width = min(proxy.size.width, proxy.size.height * 16 / 9)
       ZStack {
         theme.background
-        if let card = model.selectedCard {
-          SlideView(card: card, theme: theme, store: model.store, width: width)
-            .id(card.id)
+        if let slide = model.selectedSlide {
+          SlideView(slide: slide, theme: theme, store: model.store, width: width)
+            .id(slide.id)
             .transition(.opacity)
         }
       }
       .frame(width: proxy.size.width, height: proxy.size.height)
     }
-    .animation(.easeInOut(duration: 0.25), value: model.selectedCardID)
+    .animation(.easeInOut(duration: 0.25), value: model.selectedSlideID)
     .ignoresSafeArea()
     .focusable()
     .focusEffectDisabled()
@@ -149,7 +154,11 @@ struct SlideshowView: View {
       model.stopPresenting()
       return .handled
     }
-    .onAppear { focused = true }
+    .onAppear {
+      focused = true
+      NextSlidePanel.show(model)
+    }
+    .onDisappear { NextSlidePanel.hide() }
     .background(HiddenWindowButtons())
   }
 }

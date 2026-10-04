@@ -38,6 +38,11 @@ struct PostdeckCommands: Commands {
       }
       .keyboardShortcut("n")
       .disabled(model.isPresenting)
+      Button("New Text Slide") {
+        model.addTextSlide()
+      }
+      .keyboardShortcut("t")
+      .disabled(model.isPresenting)
     }
     CommandMenu("Slideshow") {
       if model.isPresenting {
@@ -46,7 +51,7 @@ struct PostdeckCommands: Commands {
       } else {
         Button("Play") { model.startPresenting() }
           .keyboardShortcut(.return, modifiers: .command)
-          .disabled(model.cards.isEmpty)
+          .disabled(model.slides.isEmpty)
       }
       Divider()
       Button("Next Slide") { model.showNext() }

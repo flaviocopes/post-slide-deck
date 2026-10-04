@@ -63,18 +63,79 @@ public struct Media: Codable, Hashable, Sendable {
   }
 }
 
-/// A slideshow: cards in the order they play.
+/// A slide you write in the app: a title, and smaller text below it. Either one can be empty.
+public struct TextSlide: Codable, Identifiable, Hashable, Sendable {
+  /// A UUID, so it never matches a post's ID.
+  public var id: String
+  public var title: String
+  public var subtitle: String
+
+  public init(id: String = UUID().uuidString, title: String = "", subtitle: String = "") {
+    self.id = id
+    self.title = title
+    self.subtitle = subtitle
+  }
+}
+
+/// One slide of a deck. In `library.json` a post has the fields of a `Card`, and a text slide has `"kind": "text"`.
+public enum Slide: Codable, Identifiable, Hashable, Sendable {
+  case post(Card)
+  case text(TextSlide)
+
+  public var id: String {
+    switch self {
+    case .post(let card): card.id
+    case .text(let text): text.id
+    }
+  }
+
+  public var post: Card? {
+    if case .post(let card) = self { card } else { nil }
+  }
+
+  private enum CodingKeys: String, CodingKey {
+    case kind
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    if try container.decodeIfPresent(String.self, forKey: .kind) == "text" {
+      self = .text(try TextSlide(from: decoder))
+    } else {
+      self = .post(try Card(from: decoder))
+    }
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    switch self {
+    case .post(let card):
+      try card.encode(to: encoder)
+    case .text(let text):
+      try text.encode(to: encoder)
+      var container = encoder.container(keyedBy: CodingKeys.self)
+      try container.encode("text", forKey: .kind)
+    }
+  }
+}
+
+/// A slideshow: posts and text slides in the order they play.
 public struct Deck: Codable, Identifiable, Hashable, Sendable {
   public var id: UUID
   public var name: String
   public var createdAt: Date
-  public var cards: [Card]
+  public var slides: [Slide]
 
-  public init(id: UUID = UUID(), name: String, createdAt: Date = Date(), cards: [Card] = []) {
+  /// The slides are saved as `cards`, from when every slide was a post.
+  private enum CodingKeys: String, CodingKey {
+    case id, name, createdAt
+    case slides = "cards"
+  }
+
+  public init(id: UUID = UUID(), name: String, createdAt: Date = Date(), slides: [Slide] = []) {
     self.id = id
     self.name = name
     self.createdAt = createdAt
-    self.cards = cards
+    self.slides = slides
   }
 }
 

@@ -64,9 +64,9 @@ func capture(_ window: NSWindow, model: AppModel) async {
     try? await Task.sleep(for: .seconds(1))
     write(framed(snapshot(window)), to: output.appending(path: "screenshot-\(name).png"))
   }
-  for (index, card) in model.cards.enumerated() {
+  for (index, slide) in model.slides.enumerated() {
     for theme in SlideTheme.allCases {
-      let renderer = ImageRenderer(content: SlideView(card: card, theme: theme, store: model.store, width: 1920))
+      let renderer = ImageRenderer(content: SlideView(slide: slide, theme: theme, store: model.store, width: 1920))
       renderer.scale = 1
       if let image = renderer.cgImage {
         write(image, to: output.appending(path: "slide-\(index + 1)-\(theme.rawValue).png"))
