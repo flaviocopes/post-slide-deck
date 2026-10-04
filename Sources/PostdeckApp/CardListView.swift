@@ -108,11 +108,10 @@ struct Navigator: View {
       model.showNext()
       return .handled
     }
-    .onKeyPress(keys: [.delete, .deleteForward]) { _ in
+    .onDeleteCommand {
       if let id = model.selectedSlideID {
         model.deleteSlide(id)
       }
-      return .handled
     }
   }
 
