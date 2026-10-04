@@ -53,6 +53,7 @@ Every post goes to the slideshow selected in the app. Create one with ⌘N, and 
 Then build the slideshow:
 
 - Press ⌘T, or click the text button above the slides, to add a slide with your own text after the selected one. It has a title and, if you want, smaller text below it, like an intro before the first post. Type on the slide in the preview to change it.
+- Drop images on the slides, like screenshots from your Desktop, and each one becomes a slide where you drop it, shown as large as it fits on the slideshow's background. Dropping them on the preview adds them after the selected slide, and ⇧⌘I or the image button above the slides lets you pick them. Postdeck keeps a copy, so the slide still works if you delete the original.
 - Drag the slides to reorder them, or drop one on another slideshow in the sidebar to move it there.
 - Click a slide and press Delete to remove it. Right-click it to open the post on X or move it to another slideshow.
 - The swatches next to Play pick the slideshow's theme, the background and colors of every slide in it. There are three light themes and three dark ones, and each slideshow keeps its own.
@@ -76,7 +77,7 @@ A few details that help while recording:
 
 ## Build slideshows with AI agents
 
-Postdeck has a command line tool, `postdeck`, so an agent like Claude Code, Cursor or Codex can build a slideshow for you: create it, add text slides and posts, edit, reorder and remove them, and pick a theme. You see every change in the app right away.
+Postdeck has a command line tool, `postdeck`, so an agent like Claude Code, Cursor or Codex can build a slideshow for you: create it, add text slides, images and posts, edit, reorder and remove them, and pick a theme. You see every change in the app right away.
 
 Set it up from the **Postdeck** menu:
 
@@ -89,6 +90,7 @@ Then ask an agent something like "make a Postdeck slideshow for my video about t
 postdeck create "This week's apps" --theme midnight
 postdeck add-text "This week's apps" "This week's apps" --subtitle "Four Mac apps I shipped"
 postdeck add-post "This week's apps" releases.json
+postdeck add-image "This week's apps" ~/Desktop/noterepo.png
 postdeck show "This week's apps"
 postdeck open "This week's apps"
 ```

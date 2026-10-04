@@ -1,5 +1,36 @@
+import CoreTransferable
 import PostdeckCore
 import SwiftUI
+import UniformTypeIdentifiers
+
+/// An image dropped on the app, a file from Finder or image data from another app, copied to a temporary file.
+struct ImageDrop: Transferable {
+  var url: URL
+
+  static var transferRepresentation: some TransferRepresentation {
+    FileRepresentation(importedContentType: .image) { received in
+      let copy = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString)-\(received.file.lastPathComponent)")
+      try FileManager.default.copyItem(at: received.file, to: copy)
+      return ImageDrop(url: copy)
+    }
+  }
+}
+
+/// What the slide list takes: a slide dragged within it, by ID, or an image. Images come first, because a file from
+/// Finder also comes as text, its path.
+enum SlideDrop: Transferable {
+  case slide(Slide.ID)
+  case image(URL)
+
+  static var transferRepresentation: some TransferRepresentation {
+    ProxyRepresentation(importing: { (image: ImageDrop) in SlideDrop.image(image.url) })
+    ProxyRepresentation(importing: { (id: String) in SlideDrop.slide(id) })
+  }
+
+  var image: URL? {
+    if case .image(let url) = self { url } else { nil }
+  }
+}
 
 /// The slides of the selected slideshow, as small slides you can drag to reorder.
 struct Navigator: View {
@@ -31,6 +62,16 @@ struct Navigator: View {
         }
         .buttonStyle(HoverButtonStyle())
         .help("New Text Slide (⌘T)")
+        Button {
+          model.chooseImageSlides()
+        } label: {
+          Image(systemName: "photo.badge.plus")
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundStyle(.secondary)
+            .frame(width: 28, height: 28)
+        }
+        .buttonStyle(HoverButtonStyle())
+        .help("New Image Slide… (⇧⌘I), or drop images on the slides")
       }
       .padding(.leading, 16)
       .padding(.trailing, 12)
@@ -41,7 +82,7 @@ struct Navigator: View {
           EmptyState(
             symbol: "plus.rectangle.on.rectangle",
             title: "No slides yet",
-            message: "Click the slide icon under any post on X, and it lands here, in “\(deck.name)”. Press ⌘T for a slide with your own text."
+            message: "Click the slide icon under any post on X, and it lands here, in “\(deck.name)”. Press ⌘T for a slide with your own text, or drop images here."
           )
           .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
@@ -55,6 +96,11 @@ struct Navigator: View {
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
       }
+    }
+    .dropDestination(for: ImageDrop.self) { images, _ in
+      model.addImageSlides(images.map(\.url))
+      images.forEach { try? FileManager.default.removeItem(at: $0.url) }
+      return true
     }
   }
 
@@ -77,20 +123,16 @@ struct Navigator: View {
               SlideView(slide: slide, theme: model.theme, store: model.store, width: 160)
                 .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
             }
-            .dropDestination(for: String.self) { ids, _ in
-              guard let id = ids.first else { return false }
-              model.moveSlide(id, before: slide.id)
-              return true
+            .dropDestination(for: SlideDrop.self) { items, _ in
+              drop(items, before: slide.id)
             } isTargeted: { dropTarget = $0 ? slide.id : (dropTarget == slide.id ? nil : dropTarget) }
             .contextMenu { menu(for: slide) }
         }
         Color.clear
           .frame(height: 40)
           .overlay(alignment: .top) { dropIndicator(dropTarget == Self.endOfList) }
-          .dropDestination(for: String.self) { ids, _ in
-            guard let id = ids.first else { return false }
-            model.moveSlide(id, before: nil)
-            return true
+          .dropDestination(for: SlideDrop.self) { items, _ in
+            drop(items, before: nil)
           } isTargeted: { dropTarget = $0 ? Self.endOfList : (dropTarget == Self.endOfList ? nil : dropTarget) }
       }
       .padding(.horizontal, 12)
@@ -112,6 +154,20 @@ struct Navigator: View {
         model.deleteSlide(id)
       }
     }
+  }
+
+  /// Images become slides in front of the target, or at the end. A slide moves there.
+  private func drop(_ items: [SlideDrop], before targetID: Slide.ID?) -> Bool {
+    let images = items.compactMap(\.image)
+    if !images.isEmpty {
+      let position = targetID.flatMap { id in model.slides.firstIndex { $0.id == id } } ?? model.slides.count
+      model.addImageSlides(images, at: position)
+      images.forEach { try? FileManager.default.removeItem(at: $0) }
+      return true
+    }
+    guard case .slide(let id) = items.first else { return false }
+    model.moveSlide(id, before: targetID)
+    return true
   }
 
   private func dropIndicator(_ visible: Bool) -> some View {
@@ -189,6 +245,9 @@ struct ThumbnailRow: View {
             }
           case .text:
             Text("Text slide")
+              .font(Typography.captionStrong)
+          case .image:
+            Text("Image slide")
               .font(Typography.captionStrong)
           }
         }

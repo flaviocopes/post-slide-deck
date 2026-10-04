@@ -9,6 +9,8 @@ public enum Command: Codable, Sendable, Equatable {
   case delete(slideshow: String)
   case addText(slideshow: String, title: String, subtitle: String, at: Int?)
   case addPost(slideshow: String, post: PostPayload, at: Int?)
+  /// Adds the image file at `path`, which the app copies into its media folder.
+  case addImage(slideshow: String, path: String, at: Int?)
   /// Changes a text slide. A nil title or subtitle stays as it is.
   case edit(slideshow: String, slide: String, title: String?, subtitle: String?)
   case move(slideshow: String, slide: String, to: Int)
@@ -41,7 +43,11 @@ public struct CommandError: LocalizedError, Equatable {
 
 extension Library {
   /// Runs a command. Posts keep the image URLs on X, and the app downloads the images afterwards.
-  public mutating func apply(_ command: Command) throws -> CommandReply {
+  /// `importImage` copies an image file for a new image slide's ID and returns its name in the media folder.
+  public mutating func apply(
+    _ command: Command,
+    importImage: (URL, Slide.ID) throws -> String = { _, _ in throw CommandError("Images can't be added here.") }
+  ) throws -> CommandReply {
     switch command {
     case .create(let name, let theme):
       let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -91,11 +97,19 @@ extension Library {
       }
       return reply(decks[index].id, slide: card.id)
 
+    case .addImage(let slideshow, let path, let at):
+      let index = try deckIndex(matching: slideshow)
+      let position = try insertion(at, in: index) ?? decks[index].slides.endIndex
+      let id = UUID().uuidString
+      let image = ImageSlide(id: id, file: try importImage(URL(filePath: path), id))
+      decks[index].slides.insert(.image(image), at: position)
+      return reply(decks[index].id, slide: id)
+
     case .edit(let slideshow, let slide, let title, let subtitle):
       let index = try deckIndex(matching: slideshow)
       let position = try slideIndex(matching: slide, in: index)
       guard case .text(var text) = decks[index].slides[position] else {
-        throw CommandError("Slide \(position + 1) is a post. Only text slides can be edited.")
+        throw CommandError("Slide \(position + 1) isn't a text slide. Only text slides can be edited.")
       }
       guard title != nil || subtitle != nil else { throw CommandError("Give a new title, a new subtitle, or both.") }
       text.title = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? text.title

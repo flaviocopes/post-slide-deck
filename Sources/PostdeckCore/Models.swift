@@ -77,15 +77,30 @@ public struct TextSlide: Codable, Identifiable, Hashable, Sendable {
   }
 }
 
-/// One slide of a deck. In `library.json` a post has the fields of a `Card`, and a text slide has `"kind": "text"`.
+/// A slide with an image you added, like a screenshot, copied into the media folder.
+public struct ImageSlide: Codable, Identifiable, Hashable, Sendable {
+  /// A UUID, so it never matches a post's ID.
+  public var id: String
+  /// The file name in the media folder, `<id>.<extension>`.
+  public var file: String
+
+  public init(id: String = UUID().uuidString, file: String) {
+    self.id = id
+    self.file = file
+  }
+}
+
+/// One slide of a deck. In `library.json` a post has the fields of a `Card`, and the other slides have a `kind`.
 public enum Slide: Codable, Identifiable, Hashable, Sendable {
   case post(Card)
   case text(TextSlide)
+  case image(ImageSlide)
 
   public var id: String {
     switch self {
     case .post(let card): card.id
     case .text(let text): text.id
+    case .image(let image): image.id
     }
   }
 
@@ -99,21 +114,24 @@ public enum Slide: Codable, Identifiable, Hashable, Sendable {
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    if try container.decodeIfPresent(String.self, forKey: .kind) == "text" {
-      self = .text(try TextSlide(from: decoder))
-    } else {
-      self = .post(try Card(from: decoder))
+    switch try container.decodeIfPresent(String.self, forKey: .kind) {
+    case "text": self = .text(try TextSlide(from: decoder))
+    case "image": self = .image(try ImageSlide(from: decoder))
+    default: self = .post(try Card(from: decoder))
     }
   }
 
   public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
     switch self {
     case .post(let card):
       try card.encode(to: encoder)
     case .text(let text):
       try text.encode(to: encoder)
-      var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode("text", forKey: .kind)
+    case .image(let image):
+      try image.encode(to: encoder)
+      try container.encode("image", forKey: .kind)
     }
   }
 }

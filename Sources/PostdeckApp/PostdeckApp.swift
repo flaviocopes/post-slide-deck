@@ -53,6 +53,11 @@ struct PostdeckCommands: Commands {
       }
       .keyboardShortcut("t")
       .disabled(model.isPresenting)
+      Button("New Image Slide…") {
+        model.chooseImageSlides()
+      }
+      .keyboardShortcut("i", modifiers: [.command, .shift])
+      .disabled(model.isPresenting)
     }
     CommandMenu("Slideshow") {
       if model.isPresenting {

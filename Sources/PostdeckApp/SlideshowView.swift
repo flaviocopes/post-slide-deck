@@ -5,6 +5,7 @@ import SwiftUI
 /// The selected slide, large, with the controls.
 struct Stage: View {
   @Environment(AppModel.self) private var model
+  @State private var isImageTarget = false
 
   var body: some View {
     ZStack {
@@ -29,7 +30,7 @@ struct Stage: View {
           .padding(.vertical, 16)
           controls
             .padding(.bottom, 10)
-          Text(slide.post == nil ? "Type on the slide to change its text" : "While playing, → ← or a clicker change the slide, and S brings you back here")
+          Text(hint(for: slide))
             .font(Typography.caption)
             .foregroundStyle(.tertiary)
             .padding(.bottom, 16)
@@ -39,13 +40,40 @@ struct Stage: View {
             symbol: "play.rectangle.fill",
             title: model.slides.isEmpty ? "Your slides show up here" : "Pick a slide",
             message: model.slides.isEmpty
-              ? "Each post you send from X becomes a slide you can talk over."
+              ? "Each post you send from X becomes a slide you can talk over. Drop images here to add them too."
               : "Click a slide on the left to see it here."
           )
           Spacer()
         }
       }
     }
+    .contentShape(Rectangle())
+    .onTapGesture {
+      // A click around the slide ends editing its text. Buttons and the text fields take their own clicks first.
+      if NSApp.keyWindow?.firstResponder is NSTextView {
+        NSApp.keyWindow?.makeFirstResponder(nil)
+      }
+    }
+    .overlay {
+      if isImageTarget {
+        RoundedRectangle(cornerRadius: 16, style: .continuous)
+          .strokeBorder(Brand.blue, lineWidth: 3)
+          .padding(8)
+          .allowsHitTesting(false)
+      }
+    }
+    .dropDestination(for: ImageDrop.self) { images, _ in
+      model.addImageSlides(images.map(\.url))
+      images.forEach { try? FileManager.default.removeItem(at: $0.url) }
+      return true
+    } isTargeted: { isImageTarget = $0 }
+  }
+
+  private func hint(for slide: Slide) -> String {
+    if case .text = slide {
+      return "Type on the slide to change its text"
+    }
+    return "While playing, → ← or a clicker change the slide, and S brings you back here"
   }
 
   private var topBar: some View {

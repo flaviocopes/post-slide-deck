@@ -76,12 +76,11 @@ extension Library {
     return .added(deck: deck.name, count: decks[index].slides.count)
   }
 
-  /// Adds a text slide after `slideID`, or at the end when that's nil or not in the deck.
-  public mutating func insert(_ text: TextSlide, in deckID: UUID, after slideID: Slide.ID?) {
+  /// Adds a slide at `position`, counted from 0, or at the end.
+  public mutating func insert(_ slide: Slide, in deckID: UUID, at position: Int? = nil) {
     guard let index = index(of: deckID) else { return }
     let slides = decks[index].slides
-    let position = slideID.flatMap { id in slides.firstIndex { $0.id == id } }.map { $0 + 1 } ?? slides.endIndex
-    decks[index].slides.insert(.text(text), at: position)
+    decks[index].slides.insert(slide, at: min(max(position ?? slides.endIndex, 0), slides.endIndex))
   }
 
   /// Replaces the text slide that has the same ID.
@@ -144,14 +143,21 @@ extension Library {
     }
   }
 
-  /// Every media file a post points to, so the rest can be deleted.
+  /// Every media file a slide points to, so the rest can be deleted.
   public var mediaFiles: Set<String> {
     var files = Set<String>()
-    for card in decks.flatMap(\.slides).compactMap(\.post) {
-      if let file = card.avatar?.file {
-        files.insert(file)
+    for slide in decks.flatMap(\.slides) {
+      switch slide {
+      case .post(let card):
+        if let file = card.avatar?.file {
+          files.insert(file)
+        }
+        files.formUnion(card.media.compactMap(\.file))
+      case .image(let image):
+        files.insert(image.file)
+      case .text:
+        break
       }
-      files.formUnion(card.media.compactMap(\.file))
     }
     return files
   }

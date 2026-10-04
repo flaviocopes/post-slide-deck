@@ -1,4 +1,5 @@
 import Foundation
+import ImageIO
 import Testing
 
 @testable import PostdeckCore
@@ -98,24 +99,25 @@ struct LibraryTests {
     #expect(library.decks[1].slides.map(\.id) == ["2", "1"])
   }
 
-  @Test func insertsATextSlideAfterTheSelectedOne() {
+  @Test func insertsSlidesAtAPosition() {
     var library = Library()
     let deckID = library.createDeck()
     for id in ["1", "2"] {
       library.add(makeCard(id), to: deckID)
     }
     let intro = TextSlide(title: "This week's apps")
-    library.insert(intro, in: deckID, after: nil)
-    library.insert(TextSlide(id: "first"), in: deckID, after: "1")
-    #expect(library.decks[0].slides.map(\.id) == ["1", "first", "2", intro.id])
-    #expect(library.add(makeCard("3"), to: deckID) == .added(deck: "Untitled Slideshow", count: 5))
+    library.insert(.text(intro), in: deckID)
+    library.insert(.text(TextSlide(id: "first")), in: deckID, at: 1)
+    library.insert(.image(ImageSlide(id: "screenshot", file: "screenshot.png")), in: deckID, at: 99)
+    #expect(library.decks[0].slides.map(\.id) == ["1", "first", "2", intro.id, "screenshot"])
+    #expect(library.add(makeCard("3"), to: deckID) == .added(deck: "Untitled Slideshow", count: 6))
   }
 
   @Test func editsATextSlide() {
     var library = Library()
     let deckID = library.createDeck()
     var text = TextSlide(title: "Releases")
-    library.insert(text, in: deckID, after: nil)
+    library.insert(.text(text), in: deckID)
     text.subtitle = "The app that tracks every app I ship"
     library.update(text, in: deckID)
     #expect(library.decks[0].slides == [.text(text)])
@@ -150,8 +152,34 @@ struct LibraryTests {
       Media(kind: .photo, remoteURL: URL(string: "https://pbs.twimg.com/media/B")!)
     ]
     library.add(card, to: deckID)
-    library.insert(TextSlide(title: "Releases"), in: deckID, after: nil)
-    #expect(library.mediaFiles == ["1-avatar.jpg", "1-1.jpg"])
+    library.insert(.text(TextSlide(title: "Releases")), in: deckID)
+    library.insert(.image(ImageSlide(id: "screenshot", file: "screenshot.png")), in: deckID)
+    #expect(library.mediaFiles == ["1-avatar.jpg", "1-1.jpg", "screenshot.png"])
+  }
+
+  @Test func importsImagesIntoTheMediaFolder() throws {
+    let folder = FileManager.default.temporaryDirectory.appending(path: "postdeck-tests-\(UUID().uuidString)")
+    defer { try? FileManager.default.removeItem(at: folder) }
+    let store = LibraryStore(folder: folder)
+    try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+
+    // A 2×2 PNG, saved without an extension so the name comes from the image itself.
+    let png = folder.appending(path: "screenshot")
+    let context = CGContext(
+      data: nil, width: 2, height: 2, bitsPerComponent: 8, bytesPerRow: 0,
+      space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+    )!
+    let destination = CGImageDestinationCreateWithURL(png as CFURL, "public.png" as CFString, 1, nil)!
+    CGImageDestinationAddImage(destination, context.makeImage()!, nil)
+    #expect(CGImageDestinationFinalize(destination))
+
+    #expect(try store.importImage(from: png, as: "slide") == "slide.png")
+    #expect(FileManager.default.fileExists(atPath: store.mediaURL("slide.png").path))
+
+    let notes = folder.appending(path: "notes.txt")
+    try Data("Not an image".utf8).write(to: notes)
+    #expect(throws: CommandError.self) { try store.importImage(from: notes, as: "notes") }
+    #expect(throws: CommandError.self) { try store.importImage(from: folder.appending(path: "missing.png"), as: "missing") }
   }
 
   @Test func savesAndLoads() throws {
@@ -167,12 +195,14 @@ struct LibraryTests {
     card.postedAt = Date(timeIntervalSince1970: 1_759_457_280)
     card.savedAt = Date(timeIntervalSince1970: 1_759_460_000)
     library.add(card, to: deckID)
-    library.insert(TextSlide(title: "Releases", subtitle: "The app that tracks every app I ship"), in: deckID, after: nil)
+    library.insert(.text(TextSlide(title: "Releases", subtitle: "The app that tracks every app I ship")), in: deckID)
+    library.insert(.image(ImageSlide(file: "screenshot.png")), in: deckID)
     library.setTheme("ocean", of: deckID)
     #expect(library.decks[0].theme == "ocean")
     try store.save(library)
     #expect(try store.load() == library)
-    #expect(try String(contentsOf: store.libraryURL, encoding: .utf8).contains(#""kind" : "text""#))
+    let json = try String(contentsOf: store.libraryURL, encoding: .utf8)
+    #expect(json.contains(#""kind" : "text""#) && json.contains(#""kind" : "image""#))
 
     try FileManager.default.createDirectory(at: store.mediaFolder, withIntermediateDirectories: true)
     try Data("a".utf8).write(to: store.mediaURL("1-1.jpg"))

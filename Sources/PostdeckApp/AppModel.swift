@@ -1,6 +1,7 @@
 import AppKit
 import Observation
 import PostdeckCore
+import UniformTypeIdentifiers
 
 @MainActor
 @Observable
@@ -108,9 +109,40 @@ final class AppModel {
   func addTextSlide() {
     let deckID = library.ensureCurrentDeck()
     let slide = TextSlide()
-    library.insert(slide, in: deckID, after: selectedSlideID)
+    library.insert(.text(slide), in: deckID, at: selectedIndex.map { $0 + 1 })
     selectedSlideID = slide.id
     newTextSlideID = slide.id
+    save()
+  }
+
+  /// Asks for images and adds them as slides after the selected one.
+  func chooseImageSlides() {
+    let panel = NSOpenPanel()
+    panel.allowedContentTypes = [.image]
+    panel.allowsMultipleSelection = true
+    panel.message = "Pick images to add as slides"
+    panel.prompt = "Add"
+    if panel.runModal() == .OK {
+      addImageSlides(panel.urls)
+    }
+  }
+
+  /// Copies image files into the media folder as slides, at `position`, counted from 0, or after the selected slide,
+  /// and selects the last one.
+  func addImageSlides(_ urls: [URL], at position: Int? = nil) {
+    let deckID = library.ensureCurrentDeck()
+    var position = position ?? selectedIndex.map { $0 + 1 } ?? slides.count
+    for url in urls {
+      let id = UUID().uuidString
+      do {
+        let image = ImageSlide(id: id, file: try store.importImage(from: url, as: id))
+        library.insert(.image(image), in: deckID, at: position)
+        position += 1
+        selectedSlideID = id
+      } catch {
+        errorMessage = error.localizedDescription
+      }
+    }
     save()
   }
 
@@ -239,7 +271,7 @@ final class AppModel {
   // MARK: Commands from the postdeck tool
 
   func run(_ command: Command) async throws -> CommandReply {
-    var reply = try library.apply(command)
+    var reply = try library.apply(command) { [store] url, id in try store.importImage(from: url, as: id) }
     if case .open = command {
       selectedSlideID = reply.slide
     } else if selectedSlide == nil {

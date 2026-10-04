@@ -87,9 +87,21 @@ enum Commands {
     },
 
     Spec(
+      name: "add-image", usage: "add-image <slideshow> <file> [--at <position>] [--json]",
+      summary: "Add an image as a slide, like a screenshot", options: ["--at"],
+      details: "It goes at the end, or at --at, counted from 1. Postdeck copies the file, shows it as large as it fits on the theme's background, and keeps it when the original goes away. PNG, JPEG, HEIC, GIF and WebP work."
+    ) { arguments in
+      let reference = try arguments.require(0, "the slideshow", spec("add-image"))
+      let file = try arguments.require(1, "the image file", spec("add-image"))
+      let command = Command.addImage(slideshow: reference, path: URL(filePath: file).standardizedFileURL.path, at: try arguments.number("--at"))
+      let reply = try await run(command, arguments)
+      Output.done(Output.slideMessage("Added", reply), arguments)
+    },
+
+    Spec(
       name: "edit", usage: "edit <slideshow> <slide> [--title <text>] [--subtitle <text>] [--json]",
       summary: "Change the text of a text slide", options: ["--title", "--subtitle"],
-      details: "Posts can't be edited. Pass --subtitle \"\" to remove the smaller text."
+      details: "Posts and images can't be edited. Pass --subtitle \"\" to remove the smaller text."
     ) { arguments in
       let reference = try arguments.require(0, "the slideshow", spec("edit"))
       let slide = try arguments.require(1, "the slide", spec("edit"))
@@ -233,6 +245,9 @@ enum Output {
     case .text(let text):
       kind = "text"
       summary = [text.title, text.subtitle].filter { !$0.isEmpty }.joined(separator: " · ")
+    case .image(let image):
+      kind = "image"
+      summary = image.file
     }
     let oneLine = summary.split(whereSeparator: \.isNewline).joined(separator: " ")
     let short = oneLine.count > 70 ? oneLine.prefix(69) + "…" : oneLine

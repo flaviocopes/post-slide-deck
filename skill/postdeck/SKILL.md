@@ -1,11 +1,11 @@
 ---
 name: postdeck
-description: Build slideshows in the Postdeck Mac app with the postdeck command. Create slideshows, add posts from X and text slides (a title with smaller text below), edit, reorder and remove slides, and pick a theme. Use when asked to make, prepare or change slides or a slideshow in Postdeck, add a post or tweet to Postdeck, add title, intro, section or closing slides, or set up the slides for a video that talks over posts on X.
+description: Build slideshows in the Postdeck Mac app with the postdeck command. Create slideshows, add posts from X, text slides (a title with smaller text below) and images like screenshots, edit, reorder and remove slides, and pick a theme. Use when asked to make, prepare or change slides or a slideshow in Postdeck, add a post or tweet, a screenshot or an image to Postdeck, add title, intro, section or closing slides, or set up the slides for a video that talks over posts on X.
 ---
 
 # Postdeck
 
-Postdeck is a Mac app that turns posts on X into slides you talk over while recording a video. A slideshow mixes posts from X and text slides, which have a title and, if you want, smaller text below it. The `postdeck` command changes slideshows in the running app, and the app shows each change right away. When Postdeck isn't running, the command opens it in the background.
+Postdeck is a Mac app that turns posts on X into slides you talk over while recording a video. A slideshow mixes posts from X, text slides, which have a title and, if you want, smaller text below it, and images, shown as large as they fit on the theme's background. The `postdeck` command changes slideshows in the running app, and the app shows each change right away. When Postdeck isn't running, the command opens it in the background.
 
 Run `postdeck help` for the commands, and `postdeck help <command>` for the options of one.
 
@@ -15,6 +15,7 @@ Run `postdeck help` for the commands, and `postdeck help <command>` for the opti
 postdeck create "Mac apps I shipped" --theme midnight
 postdeck add-text "Mac apps I shipped" "Mac apps I shipped" --subtitle "Four apps in one week"
 postdeck add-post "Mac apps I shipped" releases.json
+postdeck add-image "Mac apps I shipped" ~/Desktop/noterepo.png
 postdeck add-text "Mac apps I shipped" "Thanks for watching"
 postdeck show "Mac apps I shipped"
 postdeck open "Mac apps I shipped"
@@ -22,7 +23,8 @@ postdeck open "Mac apps I shipped"
 
 - Name a slideshow by its name or ID, and a slide by its number in `postdeck show` or its ID. Numbers change when you add, move or remove slides, IDs don't. Run `show` again before using numbers after a change.
 - New slides go at the end. `--at <position>` puts one somewhere else, counted from 1.
-- `edit` changes the title or subtitle of a text slide. Posts can't be edited.
+- `add-image` takes a PNG, JPEG, HEIC, GIF or WebP file. Postdeck copies it, so the original can go away.
+- `edit` changes the title or subtitle of a text slide. Posts and images can't be edited.
 - Themes: dawn, mint and peach are light, midnight, ocean and graphite are dark. `postdeck theme <slideshow> <theme>` changes it.
 - Every command takes `--json` and prints the slideshow as JSON, with each slide's ID.
 - `create` leaves the app on the slideshow it was showing. `open` switches it, and then posts sent from X with the browser extension go to that slideshow too. Say so when you open one.

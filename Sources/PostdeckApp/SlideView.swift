@@ -66,6 +66,8 @@ struct SlideView: View {
         PostSlide(card: card, theme: theme, store: store, unit: unit)
       case .text(let text):
         TextSlideContent(slide: text, theme: theme, unit: unit, edit: editText, focusesTitle: focusesTitle)
+      case .image(let image):
+        ImageSlideContent(slide: image, theme: theme, store: store, unit: unit)
       }
     }
     .frame(width: width, height: width * Self.canvas.height / Self.canvas.width)
@@ -88,6 +90,23 @@ private struct TextSlideContent: View {
   }
 
   var body: some View {
+    ZStack {
+      if edit != nil {
+        // A click on the slide, outside the text, ends editing.
+        Color.clear
+          .contentShape(Rectangle())
+          .onTapGesture { focus = nil }
+      }
+      fields
+    }
+    .task {
+      if focusesTitle {
+        focus = .title
+      }
+    }
+  }
+
+  private var fields: some View {
     VStack(spacing: 40 * unit) {
       if let edit {
         TextField("Title", text: Binding(get: { slide.title }, set: { edit(with(title: $0)) }), axis: .vertical)
@@ -114,11 +133,6 @@ private struct TextSlideContent: View {
     .frame(maxWidth: 1560 * unit)
     .padding(.vertical, 100 * unit)
     .environment(\.colorScheme, theme.colorScheme)
-    .task {
-      if focusesTitle {
-        focus = .title
-      }
-    }
   }
 
   private func with(title: String? = nil, subtitle: String? = nil) -> TextSlide {
@@ -163,6 +177,33 @@ private struct TextSlideContent: View {
         .lineSpacing(size * 0.2)
         .foregroundStyle(theme.secondary)
     }
+  }
+}
+
+/// An image slide: the image as large as it fits, with rounded corners and a shadow like a post's card.
+private struct ImageSlideContent: View {
+  let slide: ImageSlide
+  let theme: SlideTheme
+  let store: LibraryStore
+  let unit: CGFloat
+
+  var body: some View {
+    Group {
+      if let image = ImageCache.image(at: store.mediaURL(slide.file)) {
+        Image(nsImage: image)
+          .resizable()
+          .interpolation(.high)
+          .aspectRatio(contentMode: .fit)
+          .clipShape(RoundedRectangle(cornerRadius: 28 * unit, style: .continuous))
+          .shadow(color: .black.opacity(theme.isDark ? 0.4 : 0.12), radius: 40 * unit, y: 20 * unit)
+      } else {
+        Label("The image is missing", systemImage: "photo")
+          .font(.system(size: 40 * unit))
+          .foregroundStyle(theme.secondary)
+      }
+    }
+    .padding(.horizontal, 120 * unit)
+    .padding(.vertical, 90 * unit)
   }
 }
 

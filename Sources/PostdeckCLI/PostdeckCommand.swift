@@ -45,7 +45,7 @@ enum PostdeckCommand {
   }
 
   static func printHelp() {
-    print("postdeck \(Postdeck.version): builds slideshows in the Postdeck app, with posts from X and text slides.")
+    print("postdeck \(Postdeck.version): builds slideshows in the Postdeck app, with posts from X, text slides and images.")
     print()
     print("Usage: postdeck <command> [options]")
     print()

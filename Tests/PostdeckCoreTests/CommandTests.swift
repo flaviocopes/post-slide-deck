@@ -78,6 +78,24 @@ struct CommandTests {
     }
   }
 
+  @Test func addsAnImageWithTheImporterItGets() throws {
+    var library = library()
+    var imported: [URL] = []
+    let reply = try library.apply(.addImage(slideshow: "Releases video", path: "/Users/flavio/Desktop/screenshot.png", at: 1)) { url, id in
+      imported.append(url)
+      return "\(id).png"
+    }
+    let id = try #require(reply.slide)
+    #expect(imported == [URL(filePath: "/Users/flavio/Desktop/screenshot.png")])
+    #expect(reply.deck?.slides.first == .image(ImageSlide(id: id, file: "\(id).png")))
+    #expect(throws: CommandError.self) {
+      try library.apply(.addImage(slideshow: "Releases video", path: "/Users/flavio/Desktop/screenshot.png", at: nil))
+    }
+    #expect(throws: CommandError.self) {
+      try library.apply(.edit(slideshow: "Releases video", slide: id, title: "An image", subtitle: nil))
+    }
+  }
+
   @Test func opensASlideshowAtASlide() throws {
     var library = library()
     let reply = try library.apply(.open(slideshow: "Coding with agents", slide: nil))
