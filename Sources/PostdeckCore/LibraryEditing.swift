@@ -54,11 +54,12 @@ extension Library {
     return "\(Self.untitledDeckName) \(number)"
   }
 
+  /// Adds a post at the end of the deck, or at `position`, counted from 0.
   @discardableResult
-  public mutating func add(_ card: Card, to deckID: UUID) -> AddResult {
+  public mutating func add(_ card: Card, to deckID: UUID, at position: Int? = nil) -> AddResult {
     guard let index = index(of: deckID) else {
       let id = createDeck()
-      return add(card, to: id)
+      return add(card, to: id, at: position)
     }
     let deck = decks[index]
     if let existing = deck.slides.firstIndex(where: { $0.id == card.id }) {
@@ -70,7 +71,8 @@ extension Library {
       decks[index].slides[existing] = .post(post)
       return .updated(deck: deck.name, count: deck.slides.count)
     }
-    decks[index].slides.append(.post(card))
+    let slides = decks[index].slides
+    decks[index].slides.insert(.post(card), at: min(max(position ?? slides.endIndex, 0), slides.endIndex))
     return .added(deck: deck.name, count: decks[index].slides.count)
   }
 

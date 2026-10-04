@@ -95,11 +95,17 @@ public struct PostPayload: Codable, Sendable, Equatable {
       avatar: author.avatarURL.flatMap(TwitterImage.large).map { Media(kind: .photo, remoteURL: $0) },
       text: text,
       links: (links ?? []).filter { !$0.isEmpty && $0.count <= 300 && text.contains($0) }.prefix(50).map { $0 },
-      postedAt: postedAt.map { Date(timeIntervalSince1970: $0 / 1000) },
+      postedAt: postedAt.map { Date(timeIntervalSince1970: $0 / 1000) } ?? Self.date(fromID: id),
       replyingTo: replyingTo,
       media: Array(media.prefix(Self.maxMedia)),
       savedAt: savedAt
     )
+  }
+
+  /// A post ID is a snowflake: its top bits are milliseconds since X's epoch, like `post.js` reads them.
+  static func date(fromID id: String) -> Date? {
+    guard let snowflake = UInt64(id), snowflake > 1_000_000_000_000_000 else { return nil }
+    return Date(timeIntervalSince1970: Double((snowflake >> 22) + 1_288_834_974_657) / 1000)
   }
 
   static func isHandle(_ handle: String) -> Bool {

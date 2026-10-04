@@ -1,4 +1,5 @@
 import AppKit
+import PostdeckCore
 import SwiftUI
 
 /// The app's colors, sizes and shared pieces. The brand colors come from the app icon.

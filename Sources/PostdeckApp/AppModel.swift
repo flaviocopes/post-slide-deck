@@ -185,6 +185,11 @@ final class AppModel {
       receive: { [weak self] payload in
         guard let self else { throw PayloadError("Postdeck is quitting.") }
         return try await self.receive(payload)
+      },
+      library: { [weak self] in await self?.library ?? Library() },
+      run: { [weak self] command in
+        guard let self else { throw CommandError("Postdeck is quitting.") }
+        return try await self.run(command)
       }
     )
     do {
@@ -229,6 +234,32 @@ final class AppModel {
       selectedSlideID = downloaded.id
     }
     return result
+  }
+
+  // MARK: Commands from the postdeck tool
+
+  func run(_ command: Command) async throws -> CommandReply {
+    var reply = try library.apply(command)
+    if case .open = command {
+      selectedSlideID = reply.slide
+    } else if selectedSlide == nil {
+      selectedSlideID = slides.first?.id
+    }
+    save()
+    switch command {
+    case .delete, .remove:
+      store.removeUnusedMedia(keeping: library.mediaFiles)
+    case .addPost:
+      guard let card = reply.deck?.slides.first(where: { $0.id == reply.slide })?.post,
+        (card.media + [card.avatar].compactMap { $0 }).contains(where: { $0.file == nil })
+      else { break }
+      library.setMedia(of: await MediaDownloader(folder: store.mediaFolder).download(card))
+      save()
+      reply.deck = library.decks.first { $0.id == reply.deck?.id }
+    default:
+      break
+    }
+    return reply
   }
 
   private func save() {

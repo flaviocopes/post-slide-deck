@@ -9,12 +9,17 @@ let package = Package(
   ],
   products: [
     .library(name: "PostdeckCore", targets: ["PostdeckCore"]),
-    .executable(name: "PostdeckApp", targets: ["PostdeckApp"])
+    .executable(name: "PostdeckApp", targets: ["PostdeckApp"]),
+    .executable(name: "postdeck", targets: ["PostdeckCLI"])
   ],
   targets: [
     .target(name: "PostdeckCore"),
     .executableTarget(
       name: "PostdeckApp",
+      dependencies: ["PostdeckCore"]
+    ),
+    .executableTarget(
+      name: "PostdeckCLI",
       dependencies: ["PostdeckCore"]
     ),
     .testTarget(

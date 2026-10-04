@@ -34,6 +34,10 @@ struct PayloadTests {
     #expect(card.authorVerified)
     #expect(card.links == ["flaviocopes.com/releases/"])
     #expect(card.postedAt == Date(timeIntervalSince1970: 1_759_457_280))
+
+    var withoutDate = try PostPayload.decode(Data(json.utf8))
+    withoutDate.postedAt = nil
+    #expect(try withoutDate.card().postedAt == Date(timeIntervalSince1970: 1_790_986_080.195))
     #expect(
       card.avatar?.remoteURL.absoluteString
         == "https://pbs.twimg.com/profile_images/1084880084090146819/uFLTp7C1_400x400.jpg"

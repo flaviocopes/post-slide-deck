@@ -1,6 +1,6 @@
 import Foundation
 
-/// Just enough HTTP/1.1 for the extension: one request per connection, with a `Content-Length` body.
+/// Just enough HTTP/1.1 for the extension and the `postdeck` tool: one request per connection, with a `Content-Length` body.
 public struct HTTPRequest: Sendable, Equatable {
   public var method: String
   public var path: String
@@ -63,6 +63,7 @@ public struct HTTPResponse: Sendable, Equatable {
   public static func json(_ status: Int, _ value: some Encodable) -> HTTPResponse {
     let encoder = JSONEncoder()
     encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
+    encoder.dateEncodingStrategy = .iso8601
     return HTTPResponse(status: status, body: (try? encoder.encode(value)) ?? Data("{}".utf8))
   }
 

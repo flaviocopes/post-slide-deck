@@ -1,5 +1,6 @@
 #!/bin/sh
-# Builds a universal (Apple silicon and Intel) dist/Postdeck.app.
+# Builds a universal (Apple silicon and Intel) dist/Postdeck.app, with the postdeck command
+# at Contents/Helpers/postdeck and the agent skill at Contents/Resources/SKILL.md.
 # Signs with Flavio's Developer ID when the certificate is in the keychain, and ad-hoc everywhere else (CI, forks).
 # The version comes from Postdeck.version in Sources/PostdeckCore/Version.swift.
 
@@ -16,10 +17,13 @@ ICONSET="$ROOT/.build/AppIcon.iconset"
 cd "$ROOT"
 VERSION=$(sed -n 's/^ *public static let version = "\(.*\)"$/\1/p' Sources/PostdeckCore/Version.swift)
 swift build -c release --arch arm64 --arch x86_64 --product PostdeckApp
+swift build -c release --arch arm64 --arch x86_64 --product postdeck
 
 rm -rf "$APP"
-mkdir -p "$MACOS" "$RESOURCES"
+mkdir -p "$MACOS" "$RESOURCES" "$CONTENTS/Helpers"
 cp ".build/apple/Products/Release/PostdeckApp" "$MACOS/Postdeck"
+cp ".build/apple/Products/Release/postdeck" "$CONTENTS/Helpers/postdeck"
+cp skill/postdeck/SKILL.md "$RESOURCES/SKILL.md"
 
 rm -rf "$ICONSET"
 mkdir -p "$ICONSET"
@@ -68,6 +72,7 @@ PLIST
 IDENTITY=$(security find-identity -v -p codesigning | awk '/"Developer ID Application: Flavio Copes \(DGFKNTAG99\)"/ { print $2; exit }')
 if [ -n "$IDENTITY" ]; then
   SIGNATURE="Developer ID"
+  codesign --force --options runtime --timestamp --sign "$IDENTITY" "$CONTENTS/Helpers/postdeck"
   codesign --force --options runtime --timestamp --sign "$IDENTITY" "$MACOS/Postdeck"
   codesign --force --options runtime --timestamp --sign "$IDENTITY" "$APP"
   codesign --verify --strict "$APP"

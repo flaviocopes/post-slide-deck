@@ -74,15 +74,36 @@ A few details that help while recording:
 - If X cut a long post short in the timeline, open the post and click the slide icon again. Postdeck replaces the text with the full one.
 - Slides are drawn at any window size, so they stay sharp in a small window or in full screen.
 
+## Build slideshows with AI agents
+
+Postdeck has a command line tool, `postdeck`, so an agent like Claude Code, Cursor or Codex can build a slideshow for you: create it, add text slides and posts, edit, reorder and remove them, and pick a theme. You see every change in the app right away.
+
+Set it up from the **Postdeck** menu:
+
+1. **Install Command Line Tool…** links `postdeck` into `~/.local/bin`.
+2. **Install Agent Skill…** copies a skill to `~/.agents/skills/postdeck` and links it for Claude Code, Cursor and Codex, so they know when and how to use the command.
+
+Then ask an agent something like "make a Postdeck slideshow for my video about this week's Mac apps, with an intro slide and the posts I sent you". Here's what it runs:
+
+```sh
+postdeck create "This week's apps" --theme midnight
+postdeck add-text "This week's apps" "This week's apps" --subtitle "Four Mac apps I shipped"
+postdeck add-post "This week's apps" releases.json
+postdeck show "This week's apps"
+postdeck open "This week's apps"
+```
+
+`add-post` takes a post as the same JSON the extension sends, and `postdeck help add-post` shows the format. Run `postdeck help` for every command. Postdeck needs to be running, and the command opens it in the background when it isn't.
+
 ## Privacy
 
 Postdeck keeps everything on your Mac, in `~/Library/Application Support/Postdeck`. When a post arrives, the app downloads its avatar and images from X, so the slides work offline while you record. Once a day, it asks GitHub whether there's a newer version of Postdeck, and it downloads one only when you click **Install and Relaunch**. There are no accounts.
 
-The extension reads a post from the page only when you click its button, and sends it to the app on your Mac. It runs only on x.com and twitter.com, and the only other place it can reach is the app.
+The extension reads a post from the page only when you click its button, and sends it to the app on your Mac. It runs only on x.com and twitter.com, and the only other place it can reach is the app. The `postdeck` command only talks to the app on your Mac.
 
 ## How it works
 
-The extension can't talk to the app from the X page, so the page hands the post to the extension's service worker, which sends it to `http://127.0.0.1:7678`. That's a tiny HTTP server inside the app. It only listens on your Mac, and it refuses requests from web pages, so a website can't add posts to your slideshows.
+The extension can't talk to the app from the X page, so the page hands the post to the extension's service worker, which sends it to `http://127.0.0.1:7678`. That's a tiny HTTP server inside the app. It only listens on your Mac, and it refuses requests from web pages, so a website can't add posts to your slideshows. The `postdeck` command talks to the same server, so the app stays the only one that writes your library.
 
 Reading a post from X is the fragile part, because X changes its markup. `extension/post.js` handles both the current markup and the older one with `data-testid` attributes. It reads the date from the post ID, since X's IDs carry a timestamp. The extension test runs against real X pages saved in `Tests/extension/fixtures`.
 

@@ -1,24 +1,11 @@
 import PostdeckCore
 import SwiftUI
 
-/// The background and colors of a slideshow's slides: three light themes, then three dark ones.
-enum SlideTheme: String, CaseIterable, Identifiable {
-  case dawn, mint, peach, midnight, ocean, graphite
-
-  var id: String { rawValue }
-
+/// The background and colors of each theme.
+extension SlideTheme {
   /// A slideshow's theme. Slideshows without one use the Light or Dark switch of Postdeck 1.0.
   init(_ id: String?) {
     self = id.flatMap(Self.init(rawValue:)) ?? (UserDefaults.standard.string(forKey: "slideTheme") == "dark" ? .midnight : .dawn)
-  }
-
-  var title: String { rawValue.capitalized }
-
-  var isDark: Bool {
-    switch self {
-    case .dawn, .mint, .peach: false
-    case .midnight, .ocean, .graphite: true
-    }
   }
 
   /// The colors in the top leading and bottom trailing corners.

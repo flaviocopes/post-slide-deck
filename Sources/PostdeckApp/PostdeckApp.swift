@@ -7,6 +7,9 @@ struct PostdeckApp: App {
 
   init() {
     AppUpdater.shared.start(repository: "flaviocopes/postdeck")
+    if AgentSkill.state == .outdated {
+      _ = AgentSkill.install()
+    }
   }
 
   var body: some Scene {
@@ -30,6 +33,13 @@ struct PostdeckCommands: Commands {
     CommandGroup(after: .appInfo) {
       Button("Check for Updates…") {
         AppUpdater.shared.checkForUpdates()
+      }
+      Divider()
+      Button("Install Command Line Tool…") {
+        CommandLineTool.install()
+      }
+      Button("Install Agent Skill…") {
+        AgentSkill.installFromMenu()
       }
     }
     CommandGroup(replacing: .newItem) {

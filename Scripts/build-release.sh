@@ -25,6 +25,7 @@ fi
 rm -f "$ZIP"
 ./Scripts/build-app.sh >/dev/null
 lipo "$APP/Contents/MacOS/Postdeck" -verify_arch arm64 x86_64
+lipo "$APP/Contents/Helpers/postdeck" -verify_arch arm64 x86_64
 
 TEAM=$(codesign -dv "$APP" 2>&1 | sed -n 's/^TeamIdentifier=//p')
 if [ "$TEAM" = DGFKNTAG99 ]; then
