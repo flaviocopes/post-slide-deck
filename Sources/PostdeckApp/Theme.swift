@@ -155,32 +155,40 @@ struct PlayButtonStyle: ButtonStyle {
   }
 }
 
-/// Light and Dark for the slides, as two icons in a capsule.
-struct ThemeToggle: View {
-  @Binding var theme: SlideTheme
+/// The slideshow's theme, as a swatch of each background in a capsule: the light ones, then the dark ones.
+struct ThemePicker: View {
+  let selection: SlideTheme
+  let select: @MainActor (SlideTheme) -> Void
 
   var body: some View {
     HStack(spacing: 2) {
-      ForEach(SlideTheme.allCases) { option in
-        Button {
-          withAnimation(.easeOut(duration: 0.15)) { theme = option }
-        } label: {
-          Image(systemName: option == .light ? "sun.max.fill" : "moon.fill")
-            .font(.system(size: 11, weight: .semibold))
-            .foregroundStyle(theme == option ? Brand.blue : .secondary)
-            .frame(width: 28, height: 24)
-            .background {
-              if theme == option {
-                Capsule().fill(Surface.raised).shadow(color: .black.opacity(0.1), radius: 2, y: 1)
-              }
-            }
-            .contentShape(Capsule())
-        }
-        .buttonStyle(.plain)
-        .help("\(option.title) slides")
-      }
+      swatches(SlideTheme.allCases.filter { !$0.isDark })
+      Rectangle()
+        .fill(Surface.hairline)
+        .frame(width: 1, height: 14)
+        .padding(.horizontal, 3)
+      swatches(SlideTheme.allCases.filter(\.isDark))
     }
     .padding(3)
     .background(Surface.hover, in: Capsule())
+  }
+
+  private func swatches(_ themes: [SlideTheme]) -> some View {
+    ForEach(themes) { theme in
+      Button {
+        withAnimation(.easeOut(duration: 0.15)) { select(theme) }
+      } label: {
+        Circle()
+          .fill(theme.background)
+          .overlay(Circle().strokeBorder(Color.primary.opacity(theme.isDark ? 0.3 : 0.15), lineWidth: 1))
+          .frame(width: 16, height: 16)
+          .padding(3)
+          .overlay(Circle().strokeBorder(Brand.blue, lineWidth: 2).opacity(theme == selection ? 1 : 0))
+          .contentShape(Circle())
+      }
+      .buttonStyle(.plain)
+      .help("\(theme.title) theme")
+      .accessibilityLabel("\(theme.title) theme")
+    }
   }
 }

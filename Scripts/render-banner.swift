@@ -9,7 +9,7 @@ import SwiftUI
 
 let name = "Postdeck"
 let tagline = "Turn posts on X into slides\nyou talk over in your videos."
-let chips = ["One click on X", "Drag to reorder", "Light and dark"]
+let chips = ["One click on X", "Drag to reorder", "Six themes"]
 let size = CGSize(width: 1280, height: 560)
 // Where the window's top-left corner sits, and how much it's scaled down.
 let windowOrigin = CGPoint(x: 566, y: 66)

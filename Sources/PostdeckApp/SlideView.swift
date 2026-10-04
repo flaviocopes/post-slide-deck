@@ -1,54 +1,57 @@
 import PostdeckCore
 import SwiftUI
 
+/// The background and colors of a slideshow's slides: three light themes, then three dark ones.
 enum SlideTheme: String, CaseIterable, Identifiable {
-  case light, dark
+  case dawn, mint, peach, midnight, ocean, graphite
 
   var id: String { rawValue }
 
-  var title: String {
+  /// A slideshow's theme. Slideshows without one use the Light or Dark switch of Postdeck 1.0.
+  init(_ id: String?) {
+    self = id.flatMap(Self.init(rawValue:)) ?? (UserDefaults.standard.string(forKey: "slideTheme") == "dark" ? .midnight : .dawn)
+  }
+
+  var title: String { rawValue.capitalized }
+
+  var isDark: Bool {
     switch self {
-    case .light: "Light"
-    case .dark: "Dark"
+    case .dawn, .mint, .peach: false
+    case .midnight, .ocean, .graphite: true
+    }
+  }
+
+  /// The colors in the top leading and bottom trailing corners.
+  private var corners: (UInt32, UInt32) {
+    switch self {
+    case .dawn: (0xD9E6FB, 0xF2DCEF)
+    case .mint: (0xD3F0E0, 0xDDEEF8)
+    case .peach: (0xFCEBD5, 0xF8D5CB)
+    case .midnight: (0x0E1A33, 0x2A0F2E)
+    case .ocean: (0x03263A, 0x064047)
+    case .graphite: (0x3A3C43, 0x1A1B1F)
     }
   }
 
   var background: LinearGradient {
-    switch self {
-    case .light:
-      LinearGradient(colors: [Color(hex: 0xD9E6FB), Color(hex: 0xF2DCEF)], startPoint: .topLeading, endPoint: .bottomTrailing)
-    case .dark:
-      LinearGradient(colors: [Color(hex: 0x0E1A33), Color(hex: 0x2A0F2E)], startPoint: .topLeading, endPoint: .bottomTrailing)
-    }
+    LinearGradient(colors: [Color(hex: corners.0), Color(hex: corners.1)], startPoint: .topLeading, endPoint: .bottomTrailing)
   }
 
   var card: Color {
-    switch self {
-    case .light: .white
-    case .dark: Color(hex: 0x16181C)
-    }
+    isDark ? Color(hex: 0x16181C) : .white
   }
 
   var text: Color {
-    switch self {
-    case .light: Color(hex: 0x0F1419)
-    case .dark: Color(hex: 0xE7E9EA)
-    }
+    isDark ? Color(hex: 0xE7E9EA) : Color(hex: 0x0F1419)
   }
 
   var secondary: Color {
-    switch self {
-    case .light: Color(hex: 0x536471)
-    case .dark: Color(hex: 0x71767B)
-    }
+    isDark ? Color(hex: 0x8B98A5) : Color(hex: 0x536471)
   }
 
   /// So the text fields of a text slide get a cursor and placeholders that show on its background.
   var colorScheme: ColorScheme {
-    switch self {
-    case .light: .light
-    case .dark: .dark
-    }
+    isDark ? .dark : .light
   }
 
   static let blue = Color(hex: 0x1D9BF0)
@@ -213,7 +216,7 @@ private struct PostSlide: View {
     .padding(scaled(72))
     .frame(width: scaled(1400))
     .background(theme.card, in: RoundedRectangle(cornerRadius: scaled(44), style: .continuous))
-    .shadow(color: .black.opacity(theme == .light ? 0.12 : 0.4), radius: scaled(40), y: scaled(20))
+    .shadow(color: .black.opacity(theme.isDark ? 0.4 : 0.12), radius: scaled(40), y: scaled(20))
     .frame(maxHeight: scaled(940))
   }
 

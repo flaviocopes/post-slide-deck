@@ -60,6 +60,16 @@ final class AppModel {
     currentDeck?.slides ?? []
   }
 
+  var theme: SlideTheme {
+    SlideTheme(currentDeck?.theme)
+  }
+
+  func setTheme(_ theme: SlideTheme) {
+    guard let deckID = library.currentDeckID else { return }
+    library.setTheme(theme.rawValue, of: deckID)
+    save()
+  }
+
   func createDeck() {
     renamingDeckID = library.createDeck()
     selectedSlideID = nil

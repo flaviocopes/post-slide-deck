@@ -91,6 +91,11 @@ extension Library {
     decks[index].slides[position] = .text(text)
   }
 
+  public mutating func setTheme(_ theme: String, of deckID: UUID) {
+    guard let index = index(of: deckID) else { return }
+    decks[index].theme = theme
+  }
+
   public mutating func renameDeck(_ deckID: UUID, to name: String) {
     let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !name.isEmpty, let index = index(of: deckID) else { return }

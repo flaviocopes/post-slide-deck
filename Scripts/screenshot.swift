@@ -1,6 +1,6 @@
 // Renders the real app views from a library folder into <output>:
-// screenshot-<light|dark>.png (the main window, framed with a shadow) and slide-<n>-<light|dark>.png
-// (each slide, 1920×1080).
+// screenshot-<light|dark>.png (the main window, framed with a shadow) and slide-<n>-<theme>.png
+// (each slide in each theme, 1920×1080).
 // Scripts/screenshot.sh compiles it with the app's views, in place of the @main file.
 
 import AppKit

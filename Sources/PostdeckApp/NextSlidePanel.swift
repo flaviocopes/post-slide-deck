@@ -53,7 +53,6 @@ enum NextSlidePanel {
 
 private struct NextSlideView: View {
   @Environment(AppModel.self) private var model
-  @AppStorage("slideTheme") private var theme = SlideTheme.light
 
   var body: some View {
     VStack(spacing: 6) {
@@ -71,7 +70,7 @@ private struct NextSlideView: View {
         let width = min(proxy.size.width, proxy.size.height * 16 / 9)
         Group {
           if let slide = model.nextSlide {
-            SlideView(slide: slide, theme: theme, store: model.store, width: width)
+            SlideView(slide: slide, theme: model.theme, store: model.store, width: width)
           } else {
             Surface.hover
               .overlay {

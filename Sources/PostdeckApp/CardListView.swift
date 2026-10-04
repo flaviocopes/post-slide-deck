@@ -4,7 +4,6 @@ import SwiftUI
 /// The slides of the selected slideshow, as small slides you can drag to reorder.
 struct Navigator: View {
   @Environment(AppModel.self) private var model
-  @AppStorage("slideTheme") private var theme = SlideTheme.light
   @State private var dropTarget: String?
   @FocusState private var focused: Bool
 
@@ -68,14 +67,14 @@ struct Navigator: View {
     ScrollView {
       VStack(spacing: 4) {
         ForEach(Array(slides.enumerated()), id: \.element.id) { index, slide in
-          ThumbnailRow(slide: slide, number: index + 1, isSelected: slide.id == model.selectedSlideID, theme: theme)
+          ThumbnailRow(slide: slide, number: index + 1, isSelected: slide.id == model.selectedSlideID, theme: model.theme)
             .overlay(alignment: .top) { dropIndicator(dropTarget == slide.id) }
             .onTapGesture {
               model.selectedSlideID = slide.id
               focused = true
             }
             .draggable(slide.id) {
-              SlideView(slide: slide, theme: theme, store: model.store, width: 160)
+              SlideView(slide: slide, theme: model.theme, store: model.store, width: 160)
                 .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
             }
             .dropDestination(for: String.self) { ids, _ in

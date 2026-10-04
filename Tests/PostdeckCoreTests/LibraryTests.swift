@@ -137,6 +137,7 @@ struct LibraryTests {
     decoder.dateDecodingStrategy = .iso8601
     let library = try decoder.decode(Library.self, from: Data(json.utf8))
     #expect(library.decks[0].slides.map(\.post?.authorHandle) == ["flaviocopes"])
+    #expect(library.decks[0].theme == nil)
   }
 
   @Test func listsTheMediaFilesInUse() {
@@ -167,6 +168,8 @@ struct LibraryTests {
     card.savedAt = Date(timeIntervalSince1970: 1_759_460_000)
     library.add(card, to: deckID)
     library.insert(TextSlide(title: "Releases", subtitle: "The app that tracks every app I ship"), in: deckID, after: nil)
+    library.setTheme("ocean", of: deckID)
+    #expect(library.decks[0].theme == "ocean")
     try store.save(library)
     #expect(try store.load() == library)
     #expect(try String(contentsOf: store.libraryURL, encoding: .utf8).contains(#""kind" : "text""#))

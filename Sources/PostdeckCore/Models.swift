@@ -124,18 +124,21 @@ public struct Deck: Codable, Identifiable, Hashable, Sendable {
   public var name: String
   public var createdAt: Date
   public var slides: [Slide]
+  /// The ID of the slides' theme, which the app defines. Nil until you pick one.
+  public var theme: String?
 
   /// The slides are saved as `cards`, from when every slide was a post.
   private enum CodingKeys: String, CodingKey {
-    case id, name, createdAt
+    case id, name, createdAt, theme
     case slides = "cards"
   }
 
-  public init(id: UUID = UUID(), name: String, createdAt: Date = Date(), slides: [Slide] = []) {
+  public init(id: UUID = UUID(), name: String, createdAt: Date = Date(), slides: [Slide] = [], theme: String? = nil) {
     self.id = id
     self.name = name
     self.createdAt = createdAt
     self.slides = slides
+    self.theme = theme
   }
 }
 

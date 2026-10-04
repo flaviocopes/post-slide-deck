@@ -5,7 +5,6 @@ import SwiftUI
 /// The selected slide, large, with the controls.
 struct Stage: View {
   @Environment(AppModel.self) private var model
-  @AppStorage("slideTheme") private var theme = SlideTheme.light
 
   var body: some View {
     ZStack {
@@ -17,7 +16,7 @@ struct Stage: View {
           GeometryReader { proxy in
             let width = min(proxy.size.width, proxy.size.height * 16 / 9)
             SlideView(
-              slide: slide, theme: theme, store: model.store, width: width,
+              slide: slide, theme: model.theme, store: model.store, width: width,
               editText: model.updateTextSlide, focusesTitle: slide.id == model.newTextSlideID
             )
             .id(slide.id)
@@ -64,7 +63,7 @@ struct Stage: View {
         .buttonStyle(HoverButtonStyle())
       }
       Spacer()
-      ThemeToggle(theme: $theme)
+      ThemePicker(selection: model.theme, select: model.setTheme)
       Button {
         model.startPresenting()
       } label: {
@@ -113,16 +112,15 @@ struct Stage: View {
 /// The next slide shows in a window of its own, so it stays out of the recording.
 struct SlideshowView: View {
   @Environment(AppModel.self) private var model
-  @AppStorage("slideTheme") private var theme = SlideTheme.light
   @FocusState private var focused: Bool
 
   var body: some View {
     GeometryReader { proxy in
       let width = min(proxy.size.width, proxy.size.height * 16 / 9)
       ZStack {
-        theme.background
+        model.theme.background
         if let slide = model.selectedSlide {
-          SlideView(slide: slide, theme: theme, store: model.store, width: width)
+          SlideView(slide: slide, theme: model.theme, store: model.store, width: width)
             .id(slide.id)
             .transition(.opacity)
         }
