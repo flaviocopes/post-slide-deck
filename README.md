@@ -97,6 +97,8 @@ postdeck open "This week's apps"
 
 `add-post` takes a post as the same JSON the extension sends, and `postdeck help add-post` shows the format. Run `postdeck help` for every command. Postdeck needs to be running, and the command opens it in the background when it isn't.
 
+Run `postdeck capabilities` for a short list of what the command can do, with example invocations, and `postdeck capabilities --json` when an agent needs the machine-readable manifest.
+
 ## Privacy
 
 Postdeck keeps everything on your Mac, in `~/Library/Application Support/Postdeck`. When a post arrives, the app downloads its avatar and images from X, so the slides work offline while you record. Once a day, it asks GitHub whether there's a newer version of Postdeck, and it downloads one only when you click **Install and Relaunch**. There are no accounts.

@@ -22,7 +22,13 @@ enum PostdeckCommand {
         printHelp()
       }
     case "version", "--version":
-      print(Postdeck.version)
+      print("postdeck \(Postdeck.version)")
+    case "capabilities":
+      do {
+        try Commands.manifest.print(json: arguments.contains("--json"))
+      } catch {
+        fail(error.localizedDescription)
+      }
     default:
       guard let spec = Commands.all.first(where: { $0.name == name }) else {
         fail("There's no '\(name)' command. Run 'postdeck help' to see them.")
@@ -49,10 +55,11 @@ enum PostdeckCommand {
     print()
     print("Usage: postdeck <command> [options]")
     print()
-    let width = Commands.all.map(\.name.count).max() ?? 0
+    let width = max(Commands.all.map(\.name.count).max() ?? 0, "capabilities".count)
     for spec in Commands.all {
       print("  \(spec.name.padding(toLength: width, withPad: " ", startingAt: 0))  \(spec.summary)")
     }
+    print("  \("capabilities".padding(toLength: width, withPad: " ", startingAt: 0))  What postdeck can do, and what changed in each version")
     print()
     print("""
       A slideshow is named by its name or ID, a slide by its number, from 1, or its ID. Numbers change

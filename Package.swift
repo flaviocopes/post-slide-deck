@@ -25,6 +25,10 @@ let package = Package(
     .testTarget(
       name: "PostdeckCoreTests",
       dependencies: ["PostdeckCore"]
+    ),
+    .testTarget(
+      name: "PostdeckCLITests",
+      dependencies: ["PostdeckCLI"]
     )
   ]
 )

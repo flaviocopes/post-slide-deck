@@ -59,6 +59,7 @@ Set `POSTDECK_HOME=/tmp/postdeck-test` to use another library folder, and `POSTD
 - New fields on `Card`, `TextSlide`, `ImageSlide`, `Deck` and `Library` must be optional, or have a default in a custom decoder, so old `library.json` files still decode.
 - When X changes its markup, run `npm run capture-fixtures`, then `npm test`, then fix `post.js`. `capture-fixtures.mjs` needs Google Chrome: X refuses Playwright's Chromium and any user agent that says HeadlessChrome. `old-markup.html` is hand-written, the other fixtures are captured.
 - When you add or change a `postdeck` command, update its help in `Commands.swift`, `skill/postdeck/SKILL.md` and the README together. Agents learn the command from the skill and the help, so they must match what it does.
+- The agent-ready manifest lives in `Sources/PostdeckCLI/Capabilities.swift` as `Commands.manifest`. Every version bump adds a changelog entry there, newest first.
 - The extension never needs more permissions than the host permission for 127.0.0.1:7678 and the content script on x.com and twitter.com.
 - The icon is drawn by `Scripts/render-icon.swift`. Change a constant and run it again instead of editing the PNGs.
 - The app has no UI tests. Check visual changes with `./Scripts/screenshot.sh`, pointed at `docs/demo-library` or a test library made with `POSTDECK_HOME`, and by opening `dist/Postdeck.app`.
