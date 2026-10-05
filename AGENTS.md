@@ -12,7 +12,6 @@ A Swift package with no Xcode project and no Swift dependencies, plus the extens
 - `Tests/PostdeckCoreTests`: Swift Testing tests for the core. `Tests/extension`: the Playwright test, the script that captures its fixtures from x.com, and the fixtures.
 - `Scripts/`: `build-app.sh`, `build-release.sh`, `render-icon.swift`, `render-banner.swift`, and `screenshot.sh` with `screenshot.swift`.
 - `docs/`: the README's banner, screenshots, slide and video poster, and `demo-library`, the library they're made from, with the author's own public posts from @flaviocopes. Screenshots and videos use it, never a real library.
-- `.github/workflows/ci.yml`: `swift test` and `build-release.sh` on macOS, and `npm test` on Linux.
 
 ## Build and test
 
