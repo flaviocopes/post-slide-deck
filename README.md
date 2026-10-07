@@ -10,7 +10,7 @@ Watch the 30-second demo:
 
 ## Download
 
-Get `Postdeck-1.0.0.zip` from the [latest release](https://github.com/flaviocopes/postdeck/releases/latest) and unzip it. You get two things:
+Get `Postdeck-1.1.0.zip` from the [latest release](https://github.com/flaviocopes/postdeck/releases/latest) and unzip it. You get two things:
 
 - `Postdeck.app`, the Mac app. Drag it to your Applications folder. It runs on macOS 14 Sonoma or later, on Apple silicon and Intel Macs.
 - `Postdeck Extension`, the Chrome extension. Move this folder somewhere it can stay, like your Documents folder, because Chrome loads it from there.
@@ -129,11 +129,7 @@ To build the release zip, with the app and the extension, run:
 
 It builds a universal app in `dist/Postdeck.app` and zips it with the extension into `dist/`. With my Developer ID certificate in the keychain it signs and notarizes the app. Everywhere else it signs it ad hoc, so your copy is signed ad hoc. A copy you build yourself opens without a warning on your Mac.
 
-If you send it to another Mac, macOS says it "could not verify Postdeck is free of malware". Click **Done**, then go to **System Settings → Privacy & Security** and click **Open Anyway**, or remove the quarantine flag in Terminal:
-
-```sh
-xattr -dr com.apple.quarantine /Applications/Postdeck.app
-```
+If you send it to another Mac, macOS says it "could not verify Postdeck is free of malware". Click **Done**, then go to **System Settings → Privacy & Security** and click **Open Anyway**.
 
 ## Development
 

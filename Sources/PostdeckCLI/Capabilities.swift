@@ -47,6 +47,16 @@ extension Commands {
     ],
     changelog: [
       Manifest.Release(
+        version: "1.1.0",
+        date: "2026-10-07",
+        changes: [
+          "New postdeck command builds slideshows from posts, text and images, with six themes.",
+          "New capabilities command lists tasks, example commands and release history.",
+          "Long posts split into linked slides; moving or deleting a part acts on the whole post.",
+          "Text and image slides, an Up Next window, and restored Delete and arrow key navigation.",
+        ]
+      ),
+      Manifest.Release(
         version: "1.0.0",
         date: "2026-10-03",
         changes: [
