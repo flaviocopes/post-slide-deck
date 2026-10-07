@@ -141,11 +141,11 @@ struct Navigator: View {
     .focusable()
     .focusEffectDisabled()
     .focused($focused)
-    .onKeyPress(.upArrow) {
+    .onKeyPress(keys: [.upArrow, .leftArrow]) { _ in
       model.showPrevious()
       return .handled
     }
-    .onKeyPress(.downArrow) {
+    .onKeyPress(keys: [.downArrow, .rightArrow]) { _ in
       model.showNext()
       return .handled
     }
@@ -236,12 +236,14 @@ struct ThumbnailRow: View {
               Text("\(part)/\(count)")
                 .font(Typography.captionStrong)
             }
-            Text(card.authorName)
+            Text((card.part ?? 1) > 1 ? "Continued post" : card.authorName)
               .font(Typography.captionStrong)
-            Text("@\(card.authorHandle)")
-              .font(Typography.caption)
-              .foregroundStyle(.secondary)
-            if !card.replyingTo.isEmpty {
+            if (card.part ?? 1) == 1 {
+              Text("@\(card.authorHandle)")
+                .font(Typography.caption)
+                .foregroundStyle(.secondary)
+            }
+            if (card.part ?? 1) == 1, !card.replyingTo.isEmpty {
               Image(systemName: "arrowshape.turn.up.left.fill")
                 .font(.system(size: 9))
                 .foregroundStyle(.tertiary)

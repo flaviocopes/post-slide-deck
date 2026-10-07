@@ -7,15 +7,16 @@ extension Card {
     let font = NSFont.systemFont(ofSize: 38)
     let paragraph = NSMutableParagraphStyle()
     paragraph.lineSpacing = 38 * 0.22
-    func fits(_ text: String, height: CGFloat = 530) -> Bool {
+    let textHeight: CGFloat = replyingTo.isEmpty ? 470 : 400
+    func fits(_ text: String, height: CGFloat? = nil) -> Bool {
       let bounds = (text as NSString).boundingRect(
         with: NSSize(width: 1256, height: CGFloat.greatestFiniteMagnitude),
         options: [.usesLineFragmentOrigin, .usesFontLeading],
         attributes: [.font: font, .paragraphStyle: paragraph]
       )
-      return bounds.height <= height
+      return bounds.height <= (height ?? textHeight)
     }
-    guard !fits(text, height: media.isEmpty ? 530 : 250) else { return [self] }
+    guard !fits(text, height: media.isEmpty ? textHeight : 250) else { return [self] }
     var remaining = text[...]
     var chunks: [String] = []
     while !remaining.isEmpty {

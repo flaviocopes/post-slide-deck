@@ -218,10 +218,24 @@ private struct PostSlide: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: scaled(36)) {
-      header
-      if !card.replyingTo.isEmpty {
+      HStack(alignment: .top, spacing: scaled(28)) {
+        if (card.part ?? 1) == 1 { header }
+        if let part = card.part, let count = card.partCount {
+          Spacer(minLength: 0)
+          Text("\(part)/\(count)")
+            .font(.system(size: scaled(44), weight: .bold))
+            .monospacedDigit()
+            .foregroundStyle(.white)
+            .padding(.horizontal, scaled(24))
+            .padding(.vertical, scaled(12))
+            .background(SlideTheme.blue, in: RoundedRectangle(cornerRadius: scaled(20)))
+            .accessibilityLabel("Part \(part) of \(count)")
+        }
+      }
+      if (card.part ?? 1) == 1, !card.replyingTo.isEmpty {
         replyLine
       }
+      if (card.part ?? 1) > 1 { continuationMark }
       if !card.text.isEmpty {
         Text(attributedText)
           .font(.system(size: scaled(fontSize)))
@@ -231,11 +245,14 @@ private struct PostSlide: View {
           .frame(maxWidth: .infinity, alignment: .leading)
           .layoutPriority(1)
       }
+      if let part = card.part, let count = card.partCount, part < count {
+        continuationMark
+      }
       if !card.media.isEmpty {
         mediaGrid
           .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
       }
-      if let postedAt = card.postedAt {
+      if (card.part ?? 1) == 1, let postedAt = card.postedAt {
         Text(Self.dateText(postedAt))
           .font(.system(size: scaled(30)))
           .foregroundStyle(theme.secondary)
@@ -246,6 +263,13 @@ private struct PostSlide: View {
     .background(theme.card, in: RoundedRectangle(cornerRadius: scaled(44), style: .continuous))
     .shadow(color: .black.opacity(theme.isDark ? 0.4 : 0.12), radius: scaled(40), y: scaled(20))
     .frame(maxHeight: scaled(940))
+  }
+
+  private var continuationMark: some View {
+    Text("…")
+      .font(.system(size: scaled(46), weight: .bold))
+      .foregroundStyle(theme.secondary)
+      .frame(maxWidth: .infinity, alignment: .leading)
   }
 
   private var header: some View {
@@ -268,13 +292,6 @@ private struct PostSlide: View {
           .foregroundStyle(theme.secondary)
       }
       .lineLimit(1)
-      if let part = card.part, let count = card.partCount {
-        Spacer(minLength: 0)
-        Text("\(part)/\(count)")
-          .font(.system(size: scaled(30), weight: .semibold))
-          .foregroundStyle(theme.secondary)
-          .monospacedDigit()
-      }
     }
   }
 
