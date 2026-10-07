@@ -10,6 +10,9 @@ public struct Card: Codable, Identifiable, Hashable, Sendable {
   public var authorVerified: Bool
   public var avatar: Media?
   public var text: String
+  public var sourcePostID: String?
+  public var part: Int?
+  public var partCount: Int?
   /// The visible text of each link in `text`, like `flaviocopes.com/releases/` or `@maxfaber_Om`.
   public var links: [String]
   public var postedAt: Date?

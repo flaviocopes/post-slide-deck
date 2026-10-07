@@ -58,7 +58,7 @@ final class AppModel {
   }
 
   var slides: [Slide] {
-    currentDeck?.slides ?? []
+    currentDeck?.playbackSlides ?? []
   }
 
   var theme: SlideTheme {
@@ -109,7 +109,7 @@ final class AppModel {
   func addTextSlide() {
     let deckID = library.ensureCurrentDeck()
     let slide = TextSlide()
-    library.insert(.text(slide), in: deckID, at: selectedIndex.map { $0 + 1 })
+    library.insert(.text(slide), in: deckID, at: selectedSlideID.flatMap { currentDeck?.sourceIndex(for: $0) }.map { $0 + 1 })
     selectedSlideID = slide.id
     newTextSlideID = slide.id
     save()
@@ -131,13 +131,19 @@ final class AppModel {
   /// and selects the last one.
   func addImageSlides(_ urls: [URL], at position: Int? = nil) {
     let deckID = library.ensureCurrentDeck()
-    var position = position ?? selectedIndex.map { $0 + 1 } ?? slides.count
+    let afterSelection = selectedSlideID.flatMap { currentDeck?.sourceIndex(for: $0) }.map { $0 + 1 }
+    var insertion = afterSelection ?? currentDeck?.slides.count ?? 0
+    if let position {
+      insertion = slides.indices.contains(position)
+        ? currentDeck?.sourceIndex(for: slides[position].id) ?? 0
+        : currentDeck?.slides.count ?? 0
+    }
     for url in urls {
       let id = UUID().uuidString
       do {
         let image = ImageSlide(id: id, file: try store.importImage(from: url, as: id))
-        library.insert(.image(image), in: deckID, at: position)
-        position += 1
+        library.insert(.image(image), in: deckID, at: insertion)
+        insertion += 1
         selectedSlideID = id
       } catch {
         errorMessage = error.localizedDescription
@@ -154,8 +160,10 @@ final class AppModel {
 
   func deleteSlide(_ slideID: Slide.ID) {
     guard let deckID = library.currentDeckID, let index = slides.firstIndex(where: { $0.id == slideID }) else { return }
-    library.removeSlides([slideID], from: deckID)
-    if selectedSlideID == slideID {
+    let sourceID = slides[index].sourceID
+    let removesSelection = selectedSlide?.sourceID == sourceID
+    library.removeSlides([sourceID], from: deckID)
+    if removesSelection {
       selectedSlideID = slides.isEmpty ? nil : slides[min(index, slides.count - 1)].id
     }
     save()
@@ -165,9 +173,9 @@ final class AppModel {
   /// Moves a slide in front of another one, or to the end when `targetID` is nil.
   func moveSlide(_ slideID: Slide.ID, before targetID: Slide.ID?) {
     guard let deckID = library.currentDeckID, slideID != targetID,
-      let source = slides.firstIndex(where: { $0.id == slideID })
+      let source = currentDeck?.sourceIndex(for: slideID)
     else { return }
-    let destination = targetID.flatMap { id in slides.firstIndex { $0.id == id } } ?? slides.count
+    let destination = targetID.flatMap { currentDeck?.sourceIndex(for: $0) } ?? currentDeck?.slides.count ?? 0
     library.moveSlides(in: deckID, fromOffsets: [source], toOffset: destination)
     save()
   }
@@ -175,8 +183,10 @@ final class AppModel {
   /// Moves a slide of the current slideshow to another one. When it was selected, the slide that takes its place is.
   func moveSlide(_ slideID: Slide.ID, to targetID: Deck.ID) {
     guard let deckID = library.currentDeckID, let index = slides.firstIndex(where: { $0.id == slideID }) else { return }
-    library.moveSlide(slideID, from: deckID, to: targetID)
-    if selectedSlideID == slideID {
+    let sourceID = slides[index].sourceID
+    let movesSelection = selectedSlide?.sourceID == sourceID
+    library.moveSlide(sourceID, from: deckID, to: targetID)
+    if movesSelection {
       selectedSlideID = slides.isEmpty ? nil : slides[min(index, slides.count - 1)].id
     }
     save()

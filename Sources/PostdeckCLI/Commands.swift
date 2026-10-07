@@ -19,7 +19,9 @@ enum Commands {
       let library = try await App.connect().library()
       let deck = library.decks[try library.deckIndex(matching: reference)]
       if arguments.json {
-        try Output.json(deck)
+        var displayed = deck
+        displayed.slides = deck.playbackSlides
+        try Output.json(displayed)
       } else {
         Output.deck(deck)
       }
@@ -110,7 +112,7 @@ enum Commands {
       Output.done(Output.slideMessage("Edited", reply), arguments)
     },
 
-    Spec(name: "move", usage: "move <slideshow> <slide> <position> [--json]", summary: "Move a slide to another position") { arguments in
+    Spec(name: "move", usage: "move <slideshow> <slide> <position> [--json]", summary: "Move a slide to another position", details: "Linked parts of a long post move together.") { arguments in
       let reference = try arguments.require(0, "the slideshow", spec("move"))
       let slide = try arguments.require(1, "the slide", spec("move"))
       let text = try arguments.require(2, "the position", spec("move"))
@@ -119,11 +121,11 @@ enum Commands {
       Output.done(Output.slideMessage("Moved", reply), arguments)
     },
 
-    Spec(name: "remove", usage: "remove <slideshow> <slide> [--json]", summary: "Remove a slide") { arguments in
+    Spec(name: "remove", usage: "remove <slideshow> <slide> [--json]", summary: "Remove a slide", details: "Removing any linked part removes the whole post.") { arguments in
       let reference = try arguments.require(0, "the slideshow", spec("remove"))
       let slide = try arguments.require(1, "the slide", spec("remove"))
       let reply = try await run(.remove(slideshow: reference, slide: slide), arguments)
-      let count = reply.deck?.slides.count ?? 0
+      let count = reply.deck?.playbackSlides.count ?? 0
       Output.done("Removed it. “\(reply.deck?.name ?? reference)” has \(count == 1 ? "1 slide" : "\(count) slides").", arguments)
     },
 
@@ -146,7 +148,9 @@ enum Commands {
   static func run(_ command: Command, _ arguments: Arguments) async throws -> CommandReply {
     let reply = try await App.connect().run(command)
     if arguments.json {
-      try Output.json(reply)
+      var displayed = reply
+      displayed.deck?.slides = reply.deck?.playbackSlides ?? []
+      try Output.json(displayed)
     }
     return reply
   }
@@ -173,6 +177,8 @@ enum Commands {
     "kind": "photo" or "video" for a video's thumbnail. Postdeck downloads them and the avatar.
     postedAt is milliseconds since 1970; without it, the date comes from the post ID.
     A slideshow has each post once: adding it again only replaces a shorter text.
+    Long posts split into linked pages marked 1/3, 2/3 and so on. Slide numbers match the app.
+    Moving or removing any part acts on the whole post. Inserting at a part goes before the post.
     """
 }
 
@@ -189,7 +195,7 @@ struct DeckSummary: Encodable {
     id = deck.id
     name = deck.name
     theme = deck.theme
-    slides = deck.slides.count
+    slides = deck.playbackSlides.count
     self.selected = selected
   }
 }
@@ -217,7 +223,7 @@ enum Output {
     let width = library.decks.map(\.name.count).max() ?? 0
     for deck in library.decks {
       let marker = deck.id == library.currentDeckID ? "*" : " "
-      let count = deck.slides.count == 1 ? "1 slide " : "\(deck.slides.count) slides"
+      let count = deck.playbackSlides.count == 1 ? "1 slide " : "\(deck.playbackSlides.count) slides"
       let name = deck.name.padding(toLength: width, withPad: " ", startingAt: 0)
       let theme = (deck.theme ?? "default").padding(toLength: 8, withPad: " ", startingAt: 0)
       print("\(marker) \(name)  \(count.leftPadded(9))  \(theme)  \(deck.id.uuidString)")
@@ -227,10 +233,10 @@ enum Output {
   }
 
   static func deck(_ deck: Deck) {
-    let count = deck.slides.count == 1 ? "1 slide" : "\(deck.slides.count) slides"
+    let count = deck.playbackSlides.count == 1 ? "1 slide" : "\(deck.playbackSlides.count) slides"
     print("\(deck.name), \(count), \(deck.theme ?? "default") theme, \(deck.id.uuidString)")
-    for (index, slide) in deck.slides.enumerated() {
-      print(line(slide, number: index + 1, width: String(deck.slides.count).count))
+    for (index, slide) in deck.playbackSlides.enumerated() {
+      print(line(slide, number: index + 1, width: String(deck.playbackSlides.count).count))
     }
   }
 
@@ -256,7 +262,7 @@ enum Output {
 
   /// "Added slide 3 to “Releases video”:", then the slide.
   static func slideMessage(_ verb: String, _ reply: CommandReply) -> String {
-    guard let deck = reply.deck, let index = deck.slides.firstIndex(where: { $0.id == reply.slide }) else {
+    guard let deck = reply.deck, let index = deck.playbackSlides.firstIndex(where: { $0.id == reply.slide }) else {
       return "\(verb) it."
     }
     let what =
@@ -265,7 +271,7 @@ enum Output {
       case "Moved": "it to slide \(index + 1) of"
       default: "slide \(index + 1) of"
       }
-    return "\(verb) \(what) “\(deck.name)”:\n" + line(deck.slides[index], number: index + 1, width: 1)
+    return "\(verb) \(what) “\(deck.name)”:\n" + line(deck.playbackSlides[index], number: index + 1, width: 1)
   }
 }
 

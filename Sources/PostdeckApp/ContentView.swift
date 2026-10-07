@@ -85,7 +85,7 @@ struct Sidebar: View {
         }
       }
     } message: {
-      let count = deleting?.slides.count ?? 0
+      let count = deleting?.playbackSlides.count ?? 0
       Text(count == 1 ? "Its slide is deleted too." : "Its \(count) slides are deleted too.")
     }
   }
@@ -134,10 +134,10 @@ struct DeckRow: View {
           .lineLimit(1)
       }
       Spacer(minLength: 4)
-      Text("\(deck.slides.count)")
+      Text("\(deck.playbackSlides.count)")
         .font(Typography.captionStrong)
         .monospacedDigit()
-        .contentTransition(.numericText(value: Double(deck.slides.count)))
+        .contentTransition(.numericText(value: Double(deck.playbackSlides.count)))
         .padding(.horizontal, 7)
         .padding(.vertical, 2)
         .background(isSelected ? Color.white.opacity(0.2) : Surface.hover, in: Capsule())
@@ -156,7 +156,7 @@ struct DeckRow: View {
           .strokeBorder(Brand.blue, lineWidth: 2)
       }
     }
-    .animation(.snappy(duration: 0.2), value: deck.slides.count)
+    .animation(.snappy(duration: 0.2), value: deck.playbackSlides.count)
     .animation(.easeOut(duration: 0.12), value: isDropTarget)
     .contentShape(Rectangle())
     .onHover { hovering = $0 }

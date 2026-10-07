@@ -92,7 +92,7 @@ extension Library {
       let index = try deckIndex(matching: slideshow)
       let card = try post.card()
       if case .alreadyThere = add(card, to: decks[index].id, at: try insertion(at, in: index)) {
-        let number = (decks[index].slides.firstIndex { $0.id == card.id } ?? 0) + 1
+        let number = (decks[index].playbackSlides.firstIndex { $0.id == card.id } ?? 0) + 1
         throw CommandError("“\(decks[index].name)” already has this post, at slide \(number).")
       }
       return reply(decks[index].id, slide: card.id)
@@ -121,10 +121,15 @@ extension Library {
     case .move(let slideshow, let slide, let to):
       let index = try deckIndex(matching: slideshow)
       let from = try slideIndex(matching: slide, in: index)
-      let count = decks[index].slides.count
+      let count = decks[index].playbackSlides.count
       guard (1...count).contains(to) else { throw CommandError("Pick a position from 1 to \(count).") }
+      if decks[index].sourceIndex(for: decks[index].playbackSlides[to - 1].id) == from {
+        return reply(decks[index].id, slide: decks[index].slides[from].id)
+      }
       let moving = decks[index].slides.remove(at: from)
-      decks[index].slides.insert(moving, at: to - 1)
+      let pages = decks[index].playbackSlides
+      let destination = to - 1 < pages.count ? decks[index].sourceIndex(for: pages[to - 1].id)! : decks[index].slides.count
+      decks[index].slides.insert(moving, at: destination)
       return reply(decks[index].id, slide: moving.id)
 
     case .remove(let slideshow, let slide):
@@ -134,7 +139,7 @@ extension Library {
 
     case .open(let slideshow, let slide):
       let index = try deckIndex(matching: slideshow)
-      let slideID = try slide.map { decks[index].slides[try slideIndex(matching: $0, in: index)].id }
+      let slideID = try slide.map { decks[index].playbackSlides[try playbackIndex(matching: $0, in: index)].id }
       currentDeckID = decks[index].id
       return reply(decks[index].id, slide: slideID ?? decks[index].slides.first?.id)
     }
@@ -158,7 +163,13 @@ extension Library {
 
   /// The slide with this number, from 1, or this ID. Post IDs are numbers too, but far bigger than any slide count.
   public func slideIndex(matching reference: String, in deckIndex: Int) throws -> Int {
-    let deck = decks[deckIndex]
+    let page = decks[deckIndex].playbackSlides[try playbackIndex(matching: reference, in: deckIndex)]
+    return decks[deckIndex].slides.firstIndex { $0.id == page.sourceID }!
+  }
+
+  private func playbackIndex(matching reference: String, in deckIndex: Int) throws -> Int {
+    var deck = decks[deckIndex]
+    deck.slides = deck.playbackSlides
     if let number = Int(reference), deck.slides.indices.contains(number - 1) {
       return number - 1
     }
@@ -188,9 +199,10 @@ extension Library {
   /// Where to insert a slide at a position from 1, which can be one past the last slide.
   private func insertion(_ position: Int?, in deckIndex: Int) throws -> Int? {
     guard let position else { return nil }
-    let count = decks[deckIndex].slides.count
+    let pages = decks[deckIndex].playbackSlides
+    let count = pages.count
     guard (1...count + 1).contains(position) else { throw CommandError("Pick a position from 1 to \(count + 1).") }
-    return position - 1
+    return position <= count ? decks[deckIndex].sourceIndex(for: pages[position - 1].id) : decks[deckIndex].slides.count
   }
 
   private static func checkTheme(_ theme: String) throws -> String {

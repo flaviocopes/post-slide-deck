@@ -86,7 +86,7 @@ struct Navigator: View {
           )
           .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
-          slides(deck.slides)
+          slides(model.slides)
         }
       } else {
         EmptyState(
@@ -232,6 +232,10 @@ struct ThumbnailRow: View {
         HStack(spacing: 4) {
           switch slide {
           case .post(let card):
+            if let part = card.part, let count = card.partCount {
+              Text("\(part)/\(count)")
+                .font(Typography.captionStrong)
+            }
             Text(card.authorName)
               .font(Typography.captionStrong)
             Text("@\(card.authorHandle)")

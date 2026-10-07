@@ -22,6 +22,7 @@ postdeck open "Mac apps I shipped"
 ```
 
 - Name a slideshow by its name or ID, and a slide by its number in `postdeck show` or its ID. Numbers change when you add, move or remove slides, IDs don't. Run `show` again before using numbers after a change.
+- Long posts split into linked pages marked 1/3, 2/3 and so on. `show` lists every page, and numbers match the app. Moving or removing any part acts on the whole post. Inserting at a part goes before the post.
 - New slides go at the end. `--at <position>` puts one somewhere else, counted from 1.
 - `add-image` takes a PNG, JPEG, HEIC, GIF or WebP file. Postdeck copies it, so the original can go away.
 - `edit` changes the title or subtitle of a text slide. Posts and images can't be edited.

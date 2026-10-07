@@ -268,6 +268,13 @@ private struct PostSlide: View {
           .foregroundStyle(theme.secondary)
       }
       .lineLimit(1)
+      if let part = card.part, let count = card.partCount {
+        Spacer(minLength: 0)
+        Text("\(part)/\(count)")
+          .font(.system(size: scaled(30), weight: .semibold))
+          .foregroundStyle(theme.secondary)
+          .monospacedDigit()
+      }
     }
   }
 
@@ -318,6 +325,7 @@ private struct PostSlide: View {
 
   /// Shorter posts get bigger text. Posts with images get smaller text, to leave room for them.
   private var fontSize: CGFloat {
+    if card.part != nil { return 38 }
     let length = card.text.count + card.text.filter { $0 == "\n" }.count * 30
     let steps: [(Int, CGFloat)] =
       card.media.isEmpty

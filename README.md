@@ -69,7 +69,7 @@ While it plays, a small window shows you the next slide. It's a separate window,
 
 A few details that help while recording:
 
-- Shorter posts get bigger text, so a one-liner fills the slide.
+- Shorter posts get bigger text, so a one-liner fills the slide. Long posts split into readable pages marked 1/3, 2/3 and so on. Images go on the last page. Moving or deleting any part acts on the whole post.
 - Replies show who they reply to.
 - Videos show up as their thumbnail with a play button.
 - If X cut a long post short in the timeline, open the post and click the slide icon again. Postdeck replaces the text with the full one.
