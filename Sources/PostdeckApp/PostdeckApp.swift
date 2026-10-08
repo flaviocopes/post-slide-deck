@@ -6,14 +6,14 @@ struct PostdeckApp: App {
   @State private var model = AppModel()
 
   init() {
-    AppUpdater.shared.start(repository: "flaviocopes/postdeck")
+    AppUpdater.shared.start(repository: "flaviocopes/post-slide-deck")
     if AgentSkill.state == .outdated {
       _ = AgentSkill.install()
     }
   }
 
   var body: some Scene {
-    Window("Postdeck", id: "main") {
+    Window("Post Slide Deck", id: "main") {
       ContentView()
         .environment(model)
         .frame(minWidth: 1000, minHeight: 620)

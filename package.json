@@ -1,6 +1,6 @@
 {
-  "name": "postdeck",
-  "productName": "Postdeck",
+  "name": "post-slide-deck",
+  "productName": "Post Slide Deck",
   "private": true,
   "type": "module",
   "scripts": {

@@ -1,4 +1,4 @@
-// Sends posts to the Postdeck app. The content script can't reach 127.0.0.1 from x.com, the service worker can.
+// Sends posts to the Post Slide Deck app. The content script can't reach 127.0.0.1 from x.com, the service worker can.
 
 const APP_URL = 'http://127.0.0.1:7678'
 

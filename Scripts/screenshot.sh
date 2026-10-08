@@ -12,7 +12,7 @@ OUTPUT="${2:-docs}"
 mkdir -p "$OUTPUT"
 OUTPUT=$(CDPATH= cd -- "$OUTPUT" && pwd)
 BUILD="$ROOT/.build/screenshot"
-APP="$BUILD/Postdeck Screenshot.app"
+APP="$BUILD/Post Slide Deck Screenshot.app"
 TARGET="$(uname -m)-apple-macos14.0"
 
 rm -rf "$BUILD"
@@ -34,7 +34,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleIdentifier</key>
   <string>com.flaviocopes.postdeck.screenshot</string>
   <key>CFBundleName</key>
-  <string>Postdeck</string>
+  <string>Post Slide Deck</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>NSHighResolutionCapable</key>
@@ -46,5 +46,5 @@ PLIST
 codesign --force --sign - "$APP"
 open -n "$APP" --args "$OUTPUT" "$LIBRARY" -AppleLocale en_US -AppleLanguages '(en)'
 sleep 1
-while pgrep -f "Postdeck Screenshot.app/Contents/MacOS" >/dev/null; do sleep 1; done
+while pgrep -f "Post Slide Deck Screenshot.app/Contents/MacOS" >/dev/null; do sleep 1; done
 ls "$OUTPUT"

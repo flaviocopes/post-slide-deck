@@ -1,11 +1,11 @@
 ---
 name: postdeck
-description: Build slideshows in the Postdeck Mac app with the postdeck command. Create slideshows, add posts from X, text slides (a title with smaller text below) and images like screenshots, edit, reorder and remove slides, and pick a theme. Use when asked to make, prepare or change slides or a slideshow in Postdeck, add a post or tweet, a screenshot or an image to Postdeck, add title, intro, section or closing slides, or set up the slides for a video that talks over posts on X.
+description: Build slideshows in the Post Slide Deck Mac app with the postdeck command. Create slideshows, add posts from X, text slides (a title with smaller text below) and images like screenshots, edit, reorder and remove slides, and pick a theme. Use when asked to make, prepare or change slides or a slideshow in Post Slide Deck, add a post or tweet, a screenshot or an image to Post Slide Deck, add title, intro, section or closing slides, or set up the slides for a video that talks over posts on X.
 ---
 
-# Postdeck
+# Post Slide Deck
 
-Postdeck is a Mac app that turns posts on X into slides you talk over while recording a video. A slideshow mixes posts from X, text slides, which have a title and, if you want, smaller text below it, and images, shown as large as they fit on the theme's background. The `postdeck` command changes slideshows in the running app, and the app shows each change right away. When Postdeck isn't running, the command opens it in the background.
+Post Slide Deck is a Mac app that turns posts on X into slides you talk over while recording a video. A slideshow mixes posts from X, text slides, which have a title and, if you want, smaller text below it, and images, shown as large as they fit on the theme's background. The `postdeck` command changes slideshows in the running app, and the app shows each change right away. When Post Slide Deck isn't running, the command opens it in the background.
 
 Run `postdeck help` for the commands, and `postdeck help <command>` for the options of one.
 
@@ -24,7 +24,7 @@ postdeck open "Mac apps I shipped"
 - Name a slideshow by its name or ID, and a slide by its number in `postdeck show` or its ID. Numbers change when you add, move or remove slides, IDs don't. Run `show` again before using numbers after a change.
 - Long posts split into linked pages marked 1/3, 2/3 and so on. `show` lists every page, and numbers match the app. Moving or removing any part acts on the whole post. Inserting at a part goes before the post.
 - New slides go at the end. `--at <position>` puts one somewhere else, counted from 1.
-- `add-image` takes a PNG, JPEG, HEIC, GIF or WebP file. Postdeck copies it, so the original can go away.
+- `add-image` takes a PNG, JPEG, HEIC, GIF or WebP file. Post Slide Deck copies it, so the original can go away.
 - `edit` changes the title or subtitle of a text slide. Posts and images can't be edited.
 - Themes: dawn, mint and peach are light, midnight, ocean and graphite are dark. `postdeck theme <slideshow> <theme>` changes it.
 - Every command takes `--json` and prints the slideshow as JSON, with each slide's ID.
@@ -33,7 +33,7 @@ postdeck open "Mac apps I shipped"
 
 ## Add posts from X
 
-`add-post` takes a post as JSON, from a file or stdin, the same JSON the Postdeck browser extension sends. `postdeck help add-post` shows the format. Postdeck downloads the avatar and images, which must be on `pbs.twimg.com`.
+`add-post` takes a post as JSON, from a file or stdin, the same JSON the Post Slide Deck browser extension sends. `postdeck help add-post` shows the format. Post Slide Deck downloads the avatar and images, which must be on `pbs.twimg.com`.
 
 From the X API v2, ask for `created_at`, `entities`, `note_tweet`, `attachments` and the `author_id` and `attachments.media_keys` expansions, with `name`, `username`, `verified` and `profile_image_url` for users and `type`, `url` and `preview_image_url` for media. Then:
 
@@ -44,4 +44,4 @@ From the X API v2, ask for `created_at`, `entities`, `note_tweet`, `attachments`
 
 ## When the command is missing
 
-If `postdeck` isn't on the PATH, use `/Applications/Postdeck.app/Contents/Helpers/postdeck`. Postdeck → Install Command Line Tool links it into `~/.local/bin`.
+If `postdeck` isn't on the PATH, use `/Applications/Post Slide Deck.app/Contents/Helpers/postdeck`. Post Slide Deck → Install Command Line Tool links it into `~/.local/bin`.

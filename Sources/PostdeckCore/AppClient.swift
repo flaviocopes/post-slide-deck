@@ -31,7 +31,7 @@ public struct AppClient: Sendable {
     let status = (response as? HTTPURLResponse)?.statusCode ?? 0
     guard status == 200 else {
       let message = (try? JSONDecoder().decode(ErrorReply.self, from: data))?.error
-      throw CommandError(message ?? "Postdeck answered with HTTP \(status).")
+      throw CommandError(message ?? "Post Slide Deck answered with HTTP \(status).")
     }
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .iso8601

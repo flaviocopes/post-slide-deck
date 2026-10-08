@@ -44,7 +44,7 @@ struct Navigator: View {
     VStack(alignment: .leading, spacing: 0) {
       HStack(spacing: 8) {
         VStack(alignment: .leading, spacing: 1) {
-          Text(model.currentDeck?.name ?? "Postdeck")
+          Text(model.currentDeck?.name ?? "Post Slide Deck")
             .font(Typography.title)
             .lineLimit(1)
           Text(subtitle)
@@ -92,7 +92,7 @@ struct Navigator: View {
         EmptyState(
           symbol: "play.rectangle",
           title: "No slideshow",
-          message: "Create one with the + button, or send a post from X and Postdeck starts one for you."
+          message: "Create one with the + button, or send a post from X and Post Slide Deck starts one for you."
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
       }

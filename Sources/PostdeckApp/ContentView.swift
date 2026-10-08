@@ -27,7 +27,7 @@ struct ContentView: View {
     }
     .ignoresSafeArea()
     .alert(
-      "Postdeck",
+      "Post Slide Deck",
       isPresented: Binding(get: { model.errorMessage != nil }, set: { if !$0 { model.errorMessage = nil } })
     ) {
       Button("OK") {}

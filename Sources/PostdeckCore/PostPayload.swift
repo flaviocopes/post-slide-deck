@@ -57,7 +57,7 @@ public struct PostPayload: Codable, Sendable, Equatable {
     do {
       return try JSONDecoder().decode(PostPayload.self, from: data)
     } catch {
-      throw PayloadError("The post data isn't valid JSON for Postdeck.")
+      throw PayloadError("The post data isn't valid JSON for Post Slide Deck.")
     }
   }
 

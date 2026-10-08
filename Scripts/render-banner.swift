@@ -7,7 +7,7 @@
 import AppKit
 import SwiftUI
 
-let name = "Postdeck"
+let name = "Post Slide Deck"
 let tagline = "Turn posts on X into slides\nyou talk over in your videos."
 let chips = ["One click on X", "Drag to reorder", "Six themes"]
 let size = CGSize(width: 1280, height: 560)
@@ -75,7 +75,7 @@ struct Banner: View {
           .padding(-12)
           .shadow(color: .black.opacity(0.3), radius: 18, y: 10)
         Text(name)
-          .font(.system(size: 76, weight: .bold))
+          .font(.system(size: 58, weight: .bold))
           .tracking(-1.8)
           .foregroundStyle(.white)
           .padding(.top, 26)

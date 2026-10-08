@@ -53,7 +53,7 @@ public struct LibraryStore: Sendable {
     guard let source = CGImageSourceCreateWithURL(url as CFURL, nil), CGImageSourceGetCount(source) > 0,
       let type = CGImageSourceGetType(source).flatMap({ UTType($0 as String) })
     else {
-      throw CommandError("\(url.lastPathComponent) isn't an image Postdeck can show.")
+      throw CommandError("\(url.lastPathComponent) isn't an image Post Slide Deck can show.")
     }
     let file = "\(id).\(type.preferredFilenameExtension ?? url.pathExtension.lowercased())"
     try FileManager.default.createDirectory(at: mediaFolder, withIntermediateDirectories: true)

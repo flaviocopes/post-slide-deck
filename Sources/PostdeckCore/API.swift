@@ -56,17 +56,17 @@ public enum API {
   public static func respond(to request: HTTPRequest, inbox: Inbox) async -> HTTPResponse {
     // A web page can reach 127.0.0.1 through a domain it controls (DNS rebinding). Its requests then name that domain.
     if let host = request.headers["host"], !isLoopback(host) {
-      return .json(403, ErrorReply(error: "Postdeck only answers requests for 127.0.0.1."))
+      return .json(403, ErrorReply(error: "Post Slide Deck only answers requests for 127.0.0.1."))
     }
     // Web pages send their Origin and can't set a JSON content type without a CORS preflight, which this server never allows.
     if let origin = request.headers["origin"], !origin.hasPrefix("chrome-extension://") {
-      return .json(403, ErrorReply(error: "Postdeck only takes posts from its Chrome extension."))
+      return .json(403, ErrorReply(error: "Post Slide Deck only takes posts from its Chrome extension."))
     }
 
     switch (request.method, request.path) {
     case ("GET", "/status"):
       let deck = await inbox.currentDeckName()
-      return .json(200, StatusReply(app: "Postdeck", version: Postdeck.version, deck: deck))
+      return .json(200, StatusReply(app: "Post Slide Deck", version: Postdeck.version, deck: deck))
 
     case ("POST", "/cards"):
       guard isJSON(request) else { return .json(415, ErrorReply(error: "Send the post as JSON.")) }
@@ -84,7 +84,7 @@ public enum API {
     case ("POST", "/commands"):
       guard isJSON(request) else { return .json(415, ErrorReply(error: "Send the command as JSON.")) }
       guard let command = try? JSONDecoder().decode(Command.self, from: request.body) else {
-        return .json(400, ErrorReply(error: "The command isn't valid JSON for Postdeck \(Postdeck.version)."))
+        return .json(400, ErrorReply(error: "The command isn't valid JSON for Post Slide Deck \(Postdeck.version)."))
       }
       do {
         return .json(200, try await inbox.run(command))

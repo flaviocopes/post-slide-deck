@@ -1,6 +1,6 @@
 // Loads the extension into Chromium, opens X pages saved by capture-fixtures.mjs at their real URLs,
-// clicks the Postdeck button, and checks the post that reaches a stand-in for the app on port 7678.
-// Usage: npm test (quit Postdeck first, it uses the same port)
+// clicks the Post Slide Deck button, and checks the post that reaches a stand-in for the app on port 7678.
+// Usage: npm test (quit Post Slide Deck first, it uses the same port)
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
@@ -33,7 +33,7 @@ const app = createServer((request, response) => {
 })
 await new Promise((resolve, reject) => {
   app.once('error', (error) =>
-    reject(error.code === 'EADDRINUSE' ? new Error('Port 7678 is busy. Quit Postdeck before running the test.') : error),
+    reject(error.code === 'EADDRINUSE' ? new Error('Port 7678 is busy. Quit Post Slide Deck before running the test.') : error),
   )
   app.listen(7678, '127.0.0.1', resolve)
 })
@@ -88,7 +88,7 @@ try {
       label: button.getAttribute('aria-label'),
     }
   })
-  assert.deepEqual(copy, { classes: true, iconSize: true, leftovers: 0, text: '', label: 'Add to Postdeck' }, "the button is a clean copy of X's Reply control")
+  assert.deepEqual(copy, { classes: true, iconSize: true, leftovers: 0, text: '', label: 'Add to Post Slide Deck' }, "the button is a clean copy of X's Reply control")
 
   const first = await click(profile, 0)
   const request = requests.at(-1)
@@ -207,13 +207,13 @@ try {
   // The app turns a post down, then isn't running
   nextError = 'The post has no text or media to show.'
   const refused = await click(profile, 1)
-  assert.equal(refused.toast, "Postdeck couldn't add this post. The post has no text or media to show.")
+  assert.equal(refused.toast, "Post Slide Deck couldn't add this post. The post has no text or media to show.")
   assert.equal(await profile.locator('.postdeck-button').nth(1).getAttribute('data-state'), null)
 
   await new Promise((resolve) => app.close(resolve))
   const offline = await click(profile, 2)
   assert.equal(offline.post, null)
-  assert.equal(offline.toast, "Postdeck isn't running. Open the app and click again.")
+  assert.equal(offline.toast, "Post Slide Deck isn't running. Open the app and click again.")
 
   console.log(`ok: ${requests.length} posts sent from 5 pages, current and older markup, replies, quotes, errors`)
 } finally {

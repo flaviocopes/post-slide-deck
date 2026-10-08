@@ -6,7 +6,7 @@ extension Commands {
   static let manifest = Manifest(
     name: "postdeck",
     version: Postdeck.version,
-    summary: "Builds slideshows in the Postdeck app from posts on X, text slides and images.",
+    summary: "Builds slideshows in the Post Slide Deck app from posts on X, text slides and images.",
     capabilities: [
       Manifest.Capability(
         description: "List the slideshows in your library",
@@ -37,7 +37,7 @@ extension Commands {
         command: "postdeck move \"This week's apps\" 4 1"
       ),
       Manifest.Capability(
-        description: "Open a slideshow in Postdeck at a slide",
+        description: "Open a slideshow in Post Slide Deck at a slide",
         command: "postdeck open \"This week's apps\" 1"
       ),
       Manifest.Capability(
@@ -46,6 +46,7 @@ extension Commands {
       ),
     ],
     changelog: [
+      Manifest.Release(version: "1.2.0", date: "2026-10-08", changes: ["Renamed the app and Chrome extension to Post Slide Deck. The postdeck command is unchanged."]),
       Manifest.Release(
         version: "1.1.0",
         date: "2026-10-07",
@@ -60,7 +61,7 @@ extension Commands {
         version: "1.0.0",
         date: "2026-10-03",
         changes: [
-          "First release: Postdeck app and Chrome extension turn X posts into slideshow slides.",
+          "First release: Post Slide Deck app and Chrome extension turn X posts into slideshow slides.",
           "Play a slideshow in the app window for screen recording, with keyboard and clicker controls.",
           "The app downloads avatars and images so slides work offline while you record.",
         ]

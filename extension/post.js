@@ -1,4 +1,4 @@
-// Reads a post from X's page into the JSON the Postdeck app takes.
+// Reads a post from X's page into the JSON the Post Slide Deck app takes.
 // It works with X's current markup (data-engagement-action and data-icon attributes)
 // and with the older one (data-testid attributes), because X serves both.
 

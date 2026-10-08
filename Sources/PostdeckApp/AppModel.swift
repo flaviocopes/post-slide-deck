@@ -35,7 +35,7 @@ final class AppModel {
       library = Library()
       let backup = store.folder.appending(path: "library-unreadable-\(Int(Date().timeIntervalSince1970)).json")
       try? FileManager.default.moveItem(at: store.libraryURL, to: backup)
-      errorMessage = "Postdeck couldn't read its library, so it started a new one. The old file is \(backup.lastPathComponent) in \(store.folder.path)."
+      errorMessage = "Post Slide Deck couldn't read its library, so it started a new one. The old file is \(backup.lastPathComponent) in \(store.folder.path)."
     }
     selectedSlideID = library.currentDeck?.slides.first?.id
     startServer()
@@ -225,12 +225,12 @@ final class AppModel {
     let inbox = Inbox(
       currentDeckName: { [weak self] in await self?.currentDeck?.name },
       receive: { [weak self] payload in
-        guard let self else { throw PayloadError("Postdeck is quitting.") }
+        guard let self else { throw PayloadError("Post Slide Deck is quitting.") }
         return try await self.receive(payload)
       },
       library: { [weak self] in await self?.library ?? Library() },
       run: { [weak self] command in
-        guard let self else { throw CommandError("Postdeck is quitting.") }
+        guard let self else { throw CommandError("Post Slide Deck is quitting.") }
         return try await self.run(command)
       }
     )
@@ -247,7 +247,7 @@ final class AppModel {
     }
   }
 
-  /// A busy port is often a copy of Postdeck that's still quitting, so keep trying every 2 seconds.
+  /// A busy port is often a copy of Post Slide Deck that's still quitting, so keep trying every 2 seconds.
   private func serverDidChange(_ state: LocalServer.State) {
     serverState = state
     guard case .failed = state else { return }
@@ -308,7 +308,7 @@ final class AppModel {
     do {
       try store.save(library)
     } catch {
-      errorMessage = "Postdeck couldn't save the library: \(error.localizedDescription)"
+      errorMessage = "Post Slide Deck couldn't save the library: \(error.localizedDescription)"
     }
   }
 }

@@ -3,7 +3,7 @@ import SwiftUI
 
 /// The background and colors of each theme.
 extension SlideTheme {
-  /// A slideshow's theme. Slideshows without one use the Light or Dark switch of Postdeck 1.0.
+  /// A slideshow's theme. Slideshows without one use the Light or Dark switch of Post Slide Deck 1.0.
   init(_ id: String?) {
     self = id.flatMap(Self.init(rawValue:)) ?? (UserDefaults.standard.string(forKey: "slideTheme") == "dark" ? .midnight : .dawn)
   }

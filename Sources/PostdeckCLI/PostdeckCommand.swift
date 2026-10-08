@@ -51,7 +51,7 @@ enum PostdeckCommand {
   }
 
   static func printHelp() {
-    print("postdeck \(Postdeck.version): builds slideshows in the Postdeck app, with posts from X, text slides and images.")
+    print("postdeck \(Postdeck.version): builds slideshows in the Post Slide Deck app, with posts from X, text slides and images.")
     print()
     print("Usage: postdeck <command> [options]")
     print()
@@ -63,7 +63,7 @@ enum PostdeckCommand {
     print()
     print("""
       A slideshow is named by its name or ID, a slide by its number, from 1, or its ID. Numbers change
-      when slides move, IDs don't. Postdeck needs to be running, and the command opens it when it isn't.
+      when slides move, IDs don't. Post Slide Deck needs to be running, and the command opens it when it isn't.
       Run 'postdeck help <command>' for its options.
       """)
   }
@@ -169,7 +169,7 @@ enum App {
       return client
     }
     guard open(["-g", "-b", bundleID]) else {
-      throw CLIError("Postdeck isn't running, and macOS couldn't open it. Is it installed?")
+      throw CLIError("Post Slide Deck isn't running, and macOS couldn't open it. Is it installed?")
     }
     for _ in 0..<60 {
       try await Task.sleep(for: .milliseconds(250))
@@ -177,7 +177,7 @@ enum App {
         return client
       }
     }
-    throw CLIError("Postdeck isn't answering on port \(port). Open it and check the status at the bottom of its sidebar.")
+    throw CLIError("Post Slide Deck isn't answering on port \(port). Open it and check the status at the bottom of its sidebar.")
   }
 
   @discardableResult

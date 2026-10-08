@@ -1,5 +1,5 @@
 #!/bin/sh
-# Builds a universal (Apple silicon and Intel) dist/Postdeck.app, with the postdeck command
+# Builds a universal (Apple silicon and Intel) dist/Post Slide Deck.app, with the postdeck command
 # at Contents/Helpers/postdeck and the agent skill at Contents/Resources/SKILL.md.
 # Signs with Flavio's Developer ID when the certificate is in the keychain, and ad-hoc everywhere else (CI, forks).
 # The version comes from Postdeck.version in Sources/PostdeckCore/Version.swift.
@@ -7,7 +7,7 @@
 set -eu
 
 ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
-APP="$ROOT/dist/Postdeck.app"
+APP="$ROOT/dist/Post Slide Deck.app"
 CONTENTS="$APP/Contents"
 MACOS="$CONTENTS/MacOS"
 RESOURCES="$CONTENTS/Resources"
@@ -21,7 +21,7 @@ swift build -c release --arch arm64 --arch x86_64 --product postdeck
 
 rm -rf "$APP"
 mkdir -p "$MACOS" "$RESOURCES" "$CONTENTS/Helpers"
-cp ".build/apple/Products/Release/PostdeckApp" "$MACOS/Postdeck"
+cp ".build/apple/Products/Release/PostdeckApp" "$MACOS/Post Slide Deck"
 cp ".build/apple/Products/Release/postdeck" "$CONTENTS/Helpers/postdeck"
 cp skill/postdeck/SKILL.md "$RESOURCES/SKILL.md"
 
@@ -42,9 +42,9 @@ cat > "$CONTENTS/Info.plist" <<PLIST
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
   <key>CFBundleDisplayName</key>
-  <string>Postdeck</string>
+  <string>Post Slide Deck</string>
   <key>CFBundleExecutable</key>
-  <string>Postdeck</string>
+  <string>Post Slide Deck</string>
   <key>CFBundleIconFile</key>
   <string>AppIcon</string>
   <key>CFBundleIdentifier</key>
@@ -52,7 +52,7 @@ cat > "$CONTENTS/Info.plist" <<PLIST
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
-  <string>Postdeck</string>
+  <string>Post Slide Deck</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
@@ -73,7 +73,7 @@ IDENTITY=$(security find-identity -v -p codesigning | awk '/"Developer ID Applic
 if [ -n "$IDENTITY" ]; then
   SIGNATURE="Developer ID"
   codesign --force --options runtime --timestamp --sign "$IDENTITY" "$CONTENTS/Helpers/postdeck"
-  codesign --force --options runtime --timestamp --sign "$IDENTITY" "$MACOS/Postdeck"
+  codesign --force --options runtime --timestamp --sign "$IDENTITY" "$MACOS/Post Slide Deck"
   codesign --force --options runtime --timestamp --sign "$IDENTITY" "$APP"
   codesign --verify --strict "$APP"
 else
@@ -82,5 +82,5 @@ else
   codesign --verify --deep --strict "$APP"
 fi
 
-echo "Built $APP $VERSION for $(lipo -archs "$MACOS/Postdeck"), $SIGNATURE signed"
+echo "Built $APP $VERSION for $(lipo -archs "$MACOS/Post Slide Deck"), $SIGNATURE signed"
 echo "$APP"

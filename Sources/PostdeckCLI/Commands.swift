@@ -91,7 +91,7 @@ enum Commands {
     Spec(
       name: "add-image", usage: "add-image <slideshow> <file> [--at <position>] [--json]",
       summary: "Add an image as a slide, like a screenshot", options: ["--at"],
-      details: "It goes at the end, or at --at, counted from 1. Postdeck copies the file, shows it as large as it fits on the theme's background, and keeps it when the original goes away. PNG, JPEG, HEIC, GIF and WebP work."
+      details: "It goes at the end, or at --at, counted from 1. Post Slide Deck copies the file, shows it as large as it fits on the theme's background, and keeps it when the original goes away. PNG, JPEG, HEIC, GIF and WebP work."
     ) { arguments in
       let reference = try arguments.require(0, "the slideshow", spec("add-image"))
       let file = try arguments.require(1, "the image file", spec("add-image"))
@@ -130,8 +130,8 @@ enum Commands {
     },
 
     Spec(
-      name: "open", usage: "open <slideshow> [<slide>] [--json]", summary: "Show a slideshow in Postdeck, at a slide",
-      details: "Selects the slideshow, so posts sent from X go there too, and brings Postdeck to the front."
+      name: "open", usage: "open <slideshow> [<slide>] [--json]", summary: "Show a slideshow in Post Slide Deck, at a slide",
+      details: "Selects the slideshow, so posts sent from X go there too, and brings Post Slide Deck to the front."
     ) { arguments in
       let reference = try arguments.require(0, "the slideshow", spec("open"))
       let reply = try await run(.open(slideshow: reference, slide: arguments.positional(1)), arguments)
@@ -174,7 +174,7 @@ enum Commands {
 
     id, author.name, author.handle, and text or media are needed. links are the parts of the text
     shown in blue, like X shows links and mentions. media has up to 4 images on pbs.twimg.com, with
-    "kind": "photo" or "video" for a video's thumbnail. Postdeck downloads them and the avatar.
+    "kind": "photo" or "video" for a video's thumbnail. Post Slide Deck downloads them and the avatar.
     postedAt is milliseconds since 1970; without it, the date comes from the post ID.
     A slideshow has each post once: adding it again only replaces a shorter text.
     Long posts split into linked pages marked 1/3, 2/3 and so on. Slide numbers match the app.
@@ -229,7 +229,7 @@ enum Output {
       print("\(marker) \(name)  \(count.leftPadded(9))  \(theme)  \(deck.id.uuidString)")
     }
     print()
-    print("* is the slideshow open in Postdeck, where posts sent from X go.")
+    print("* is the slideshow open in Post Slide Deck, where posts sent from X go.")
   }
 
   static func deck(_ deck: Deck) {

@@ -15,7 +15,7 @@ let height: CGFloat = 780
 enum Screenshot {
   @MainActor
   static func main() {
-    // The library to show, and a free port, so a running Postdeck keeps its own.
+    // The library to show, and a free port, so a running Post Slide Deck keeps its own.
     setenv("POSTDECK_HOME", CommandLine.arguments[2], 1)
     setenv("POSTDECK_PORT", "0", 1)
     let model = AppModel()
@@ -29,7 +29,7 @@ enum Screenshot {
       backing: .buffered,
       defer: false
     )
-    window.title = "Postdeck"
+    window.title = "Post Slide Deck"
     window.titlebarAppearsTransparent = true
     window.titleVisibility = .hidden
     window.contentView = host

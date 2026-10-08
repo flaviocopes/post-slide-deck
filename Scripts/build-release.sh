@@ -1,7 +1,7 @@
 #!/bin/sh
 # Builds the universal app, notarizes it when it's signed with the Developer ID, and writes
-# dist/Postdeck-<version>.zip for a GitHub release, with Postdeck.app and the Chrome extension
-# in a "Postdeck Extension" folder next to it.
+# dist/Post Slide Deck-<version>.zip for a GitHub release, with Post Slide Deck.app and the Chrome extension
+# in a "Post Slide Deck Extension" folder next to it.
 # Needs the Developer ID certificate in the keychain and a notarytool profile named "notary":
 #   xcrun notarytool store-credentials notary --apple-id <apple id> --team-id DGFKNTAG99
 # Usage: ./Scripts/build-release.sh
@@ -11,8 +11,8 @@ ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 cd "$ROOT"
 VERSION=$(sed -n 's/^ *public static let version = "\(.*\)"$/\1/p' Sources/PostdeckCore/Version.swift)
 EXTENSION_VERSION=$(sed -n 's/^ *"version": "\(.*\)",$/\1/p' extension/manifest.json)
-APP="$ROOT/dist/Postdeck.app"
-ZIP="$ROOT/dist/Postdeck-$VERSION.zip"
+APP="$ROOT/dist/Post Slide Deck.app"
+ZIP="$ROOT/dist/Post Slide Deck-$VERSION.zip"
 STAGE=$(mktemp -d)
 CHECK=$(mktemp -d)
 trap 'rm -rf "$STAGE" "$CHECK"' EXIT
@@ -24,7 +24,7 @@ fi
 
 rm -f "$ZIP"
 ./Scripts/build-app.sh >/dev/null
-lipo "$APP/Contents/MacOS/Postdeck" -verify_arch arm64 x86_64
+lipo "$APP/Contents/MacOS/Post Slide Deck" -verify_arch arm64 x86_64
 lipo "$APP/Contents/Helpers/postdeck" -verify_arch arm64 x86_64
 
 TEAM=$(codesign -dv "$APP" 2>&1 | sed -n 's/^TeamIdentifier=//p')
@@ -47,15 +47,15 @@ else
   SIGNATURE="ad-hoc"
 fi
 
-ditto "$APP" "$STAGE/Postdeck.app"
-ditto extension "$STAGE/Postdeck Extension"
+ditto "$APP" "$STAGE/Post Slide Deck.app"
+ditto extension "$STAGE/Post Slide Deck Extension"
 find "$STAGE" -name .DS_Store -delete
 xattr -cr "$STAGE"
 ditto -c -k --norsrc --noextattr "$STAGE" "$ZIP"
 
 ditto -x -k "$ZIP" "$CHECK"
-codesign --verify --deep --strict "$CHECK/Postdeck.app"
-test -f "$CHECK/Postdeck Extension/manifest.json"
+codesign --verify --deep --strict "$CHECK/Post Slide Deck.app"
+test -f "$CHECK/Post Slide Deck Extension/manifest.json"
 
 echo "Built $ZIP, $SIGNATURE signed"
 shasum -a 256 "$ZIP"

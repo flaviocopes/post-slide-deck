@@ -74,7 +74,7 @@ public final class LocalServer: @unchecked Sendable {
       case .incomplete where !isComplete && error == nil && buffer.count <= Self.maxRequestSize:
         read(connection, buffer: buffer)
       default:
-        send(.json(400, ErrorReply(error: "Postdeck couldn't read the request.")), on: connection)
+        send(.json(400, ErrorReply(error: "Post Slide Deck couldn't read the request.")), on: connection)
       }
     }
   }

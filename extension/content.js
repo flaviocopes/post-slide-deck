@@ -1,4 +1,4 @@
-// Adds the Postdeck button next to Like on every post, and sends the post to the app on click.
+// Adds the Post Slide Deck button next to Like on every post, and sends the post to the app on click.
 
 const ICON_ADD =
   '<rect x="2.75" y="3.75" width="18.5" height="13" rx="2.5"/><path d="M12 7.25v6M9 10.25h6M8.5 20.25h7M12 16.75v3.5"/>'
@@ -36,8 +36,8 @@ function makeButton(reply) {
   icon.setAttribute('viewBox', '0 0 24 24')
   icon.classList.add('postdeck-icon')
   icon.innerHTML = ICON_ADD
-  button.title = 'Add to Postdeck'
-  button.setAttribute('aria-label', 'Add to Postdeck')
+  button.title = 'Add to Post Slide Deck'
+  button.setAttribute('aria-label', 'Add to Post Slide Deck')
   return button
 }
 
@@ -63,7 +63,7 @@ async function send(article, button) {
   if (button.dataset.state === 'sending') return
   const post = readPost(article)
   if (!post) {
-    showToast("Postdeck couldn't find this post's link, so it can't add it.")
+    showToast("Post Slide Deck couldn't find this post's link, so it can't add it.")
     return
   }
 
@@ -77,9 +77,9 @@ async function send(article, button) {
 
   if (!reply.ok) {
     delete button.dataset.state
-    if (reply.error === 'offline') showToast("Postdeck isn't running. Open the app and click again.")
-    else if (reply.error === 'reload') showToast('Postdeck was updated. Reload the page and click again.')
-    else showToast(`Postdeck couldn't add this post. ${reply.error}`)
+    if (reply.error === 'offline') showToast("Post Slide Deck isn't running. Open the app and click again.")
+    else if (reply.error === 'reload') showToast('Post Slide Deck was updated. Reload the page and click again.')
+    else showToast(`Post Slide Deck couldn't add this post. ${reply.error}`)
     return
   }
 
@@ -110,7 +110,7 @@ function showToast(message) {
 
 let scheduled = false
 
-// Quoted posts are articles too, but they have no Like button, so they get no Postdeck button.
+// Quoted posts are articles too, but they have no Like button, so they get no Post Slide Deck button.
 function scan() {
   scheduled = false
   document.querySelectorAll('article').forEach(addButton)
