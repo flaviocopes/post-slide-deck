@@ -10,7 +10,7 @@ Watch the 30-second demo:
 
 ## Download
 
-Get `Post Slide Deck-1.2.0.zip` from the [latest release](https://github.com/flaviocopes/post-slide-deck/releases/latest) and unzip it. You get two things:
+Get `Post-Slide-Deck-1.2.0.zip` from the [latest release](https://github.com/flaviocopes/post-slide-deck/releases/latest) and unzip it. You get two things:
 
 - `Post Slide Deck.app`, the Mac app. Drag it to your Applications folder. It runs on macOS 14 Sonoma or later, on Apple silicon and Intel Macs.
 - `Post Slide Deck Extension`, the Chrome extension. Move this folder somewhere it can stay, like your Documents folder, because Chrome loads it from there.

@@ -1,6 +1,6 @@
 #!/bin/sh
 # Builds the universal app, notarizes it when it's signed with the Developer ID, and writes
-# dist/Post Slide Deck-<version>.zip for a GitHub release, with Post Slide Deck.app and the Chrome extension
+# dist/Post-Slide-Deck-<version>.zip for a GitHub release, with Post Slide Deck.app and the Chrome extension
 # in a "Post Slide Deck Extension" folder next to it.
 # Needs the Developer ID certificate in the keychain and a notarytool profile named "notary":
 #   xcrun notarytool store-credentials notary --apple-id <apple id> --team-id DGFKNTAG99
@@ -12,7 +12,7 @@ cd "$ROOT"
 VERSION=$(sed -n 's/^ *public static let version = "\(.*\)"$/\1/p' Sources/PostdeckCore/Version.swift)
 EXTENSION_VERSION=$(sed -n 's/^ *"version": "\(.*\)",$/\1/p' extension/manifest.json)
 APP="$ROOT/dist/Post Slide Deck.app"
-ZIP="$ROOT/dist/Post Slide Deck-$VERSION.zip"
+ZIP="$ROOT/dist/Post-Slide-Deck-$VERSION.zip"
 STAGE=$(mktemp -d)
 CHECK=$(mktemp -d)
 trap 'rm -rf "$STAGE" "$CHECK"' EXIT

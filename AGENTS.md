@@ -23,7 +23,7 @@ swift test                                   # the core tests, must pass before 
 swift run PostdeckApp                        # run the app from source
 swift run postdeck help                      # the command line tool, which talks to the running app
 ./Scripts/build-app.sh                       # universal release build, dist/Post Slide Deck.app, with postdeck in Contents/Helpers
-./Scripts/build-release.sh                   # dist/Post Slide Deck-<version>.zip with the app and "Post Slide Deck Extension", notarized
+./Scripts/build-release.sh                   # dist/Post-Slide-Deck-<version>.zip with the app and "Post Slide Deck Extension", notarized
 npm install                                  # Playwright, for the extension test
 npm test                                     # the extension in Chromium against real X markup (quit Post Slide Deck first)
 npm run capture-fixtures                     # save fresh posts from x.com into Tests/extension/fixtures
@@ -66,7 +66,7 @@ Set `POSTDECK_HOME=/tmp/postdeck-test` to use another library folder, and `POSTD
 
 ## Releases
 
-- Releases are on GitHub, tagged `vX.Y.Z`, with `Post Slide Deck-X.Y.Z.zip` from `build-release.sh` attached. Use a minor version for a new feature or a change people notice, and a point version for bug fixes.
+- Releases are on GitHub, tagged `vX.Y.Z`, with `Post-Slide-Deck-X.Y.Z.zip` from `build-release.sh` attached. Use a minor version for a new feature or a change people notice, and a point version for bug fixes.
 - The in-app updater installs a release only when the tag equals the app's version, the zip has `Post Slide Deck.app` at the top with the same bundle ID (`com.flaviocopes.postdeck`), and its signature is valid. It takes the first `.zip` in the release, so attach only that one zip.
 - The release notes start with what's new. The update dialog shows them up to the `## Install` heading.
 - The extension doesn't update itself. When a release changes `extension/`, say so in the notes, so people replace their `Post Slide Deck Extension` folder.
