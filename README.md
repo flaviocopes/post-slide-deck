@@ -135,7 +135,7 @@ If you send it to another Mac, macOS says it "could not verify Post Slide Deck i
 
 ```sh
 swift test                              # the core tests
-npm install && npm test                 # the extension in Chromium, against saved X pages (quit Postdeck first)
+npm install && npm test                 # the extension in Chromium, against saved X pages (quit Post Slide Deck first)
 npm run capture-fixtures                # save fresh pages from x.com, needs Google Chrome
 swift Scripts/render-icon.swift         # the app icon and the extension icons
 ./Scripts/screenshot.sh docs/demo-library /tmp/postdeck-shots   # the window and every slide of the demo library

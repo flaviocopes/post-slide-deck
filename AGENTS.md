@@ -25,7 +25,7 @@ swift run postdeck help                      # the command line tool, which talk
 ./Scripts/build-app.sh                       # universal release build, dist/Post Slide Deck.app, with postdeck in Contents/Helpers
 ./Scripts/build-release.sh                   # dist/Post Slide Deck-<version>.zip with the app and "Post Slide Deck Extension", notarized
 npm install                                  # Playwright, for the extension test
-npm test                                     # the extension in Chromium against real X markup (quit Postdeck first)
+npm test                                     # the extension in Chromium against real X markup (quit Post Slide Deck first)
 npm run capture-fixtures                     # save fresh posts from x.com into Tests/extension/fixtures
 swift Scripts/render-icon.swift              # Assets/AppIcon.png and extension/icons/*.png
 ./Scripts/screenshot.sh <library> [folder]   # the main window and every slide of a library, as PNGs
